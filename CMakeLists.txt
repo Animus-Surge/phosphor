@@ -16,6 +16,11 @@ project(phosphor
     LANGUAGES CXX
 )
 
+# Compile definitions
+
+#Render system  
+add_compile_definitions(PHOSPHOR_SDL)
+
 # Set the C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -29,14 +34,26 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 # External dependencies
 find_package(SDL2 REQUIRED)
+find_package(OpenGL REQUIRED)
+
+# Symlink resources dir
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND rm -rf $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
+    COMMAND ${CMAKE_COMMAND} -E create_symlink
+    ${CMAKE_SOURCE_DIR}/resources
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
+)
 
 # Include directories
 include_directories(
     include
     ${SDL2_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIRS}
 )
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME}
-    private ${SDL2_LIBRARIES}
+    PRIVATE ${SDL2_LIBRARIES}
+    PRIVATE ${OPENGL_LIBRARIES}
 )

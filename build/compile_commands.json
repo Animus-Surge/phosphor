@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/home/surge/projects/phosphor/build",
+  "command": "/usr/bin/c++ -DPHOSPHOR_SDL -I/home/surge/projects/phosphor/include -isystem /usr/include/SDL2 -std=gnu++17 -o CMakeFiles/phosphor.dir/src/engine/engine.cpp.o -c /home/surge/projects/phosphor/src/engine/engine.cpp",
+  "file": "/home/surge/projects/phosphor/src/engine/engine.cpp"
+},
+{
+  "directory": "/home/surge/projects/phosphor/build",
+  "command": "/usr/bin/c++ -DPHOSPHOR_SDL -I/home/surge/projects/phosphor/include -isystem /usr/include/SDL2 -std=gnu++17 -o CMakeFiles/phosphor.dir/src/engine/sdl/sdl_rendersys.cpp.o -c /home/surge/projects/phosphor/src/engine/sdl/sdl_rendersys.cpp",
+  "file": "/home/surge/projects/phosphor/src/engine/sdl/sdl_rendersys.cpp"
+},
+{
+  "directory": "/home/surge/projects/phosphor/build",
+  "command": "/usr/bin/c++ -DPHOSPHOR_SDL -I/home/surge/projects/phosphor/include -isystem /usr/include/SDL2 -std=gnu++17 -o CMakeFiles/phosphor.dir/src/main.cpp.o -c /home/surge/projects/phosphor/src/main.cpp",
+  "file": "/home/surge/projects/phosphor/src/main.cpp"
+}
+]

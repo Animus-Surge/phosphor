@@ -1,0 +1,3 @@
+/home/surge/projects/phosphor/build/CMakeFiles/phosphor.dir
+/home/surge/projects/phosphor/build/CMakeFiles/edit_cache.dir
+/home/surge/projects/phosphor/build/CMakeFiles/rebuild_cache.dir
