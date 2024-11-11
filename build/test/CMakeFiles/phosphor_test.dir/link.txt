@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/phosphor_test.dir/src/main.cpp.o -o ../bin/phosphor_test  -Wl,-rpath,/home/surge/projects/phosphor/build ../libphosphor.so 
