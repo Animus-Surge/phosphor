@@ -10,8 +10,18 @@
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
 
+#include <vector>
+#include <map>
+
 #define PHOSPHOR_ENGINE_DEFAULT_TITLE "Phosphor"
 
+
+// Scene class
+class Scene {
+
+}; // class Scene
+
+// Phosphor engine class
 class Phosphor {
 
 public:

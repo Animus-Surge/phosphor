@@ -6,6 +6,8 @@
 #ifdef PHOSPHOR_SDL
 #include "phosphor/sdl/rendersys.h"
 
+#include <cmath>
+
 void draw_point(SDL_Renderer* renderer, int x, int y)
 {
     SDL_RenderDrawPoint(renderer, x, y);
@@ -33,33 +35,27 @@ void draw_polyline(SDL_Renderer* renderer, SDL_Point* points, int num_points, bo
 
 void draw_circle(SDL_Renderer* renderer, int x, int y, int r)
 {
-    int x1 = x - r;
-    int y1 = y;
-    int x2 = x + r;
-    int y2 = y;
-    int i = 0;
-    for (i = x1; i <= x2; i++)
+    //Line segments
+    for(int i = 0; i < 360; i++)
     {
-        int j = y + sqrt(r * r - (i - x) * (i - x));
-        SDL_RenderDrawPoint(renderer, i, j);
-        j = y - sqrt(r * r - (i - x) * (i - x));
-        SDL_RenderDrawPoint(renderer, i, j);
+        int x1 = x + r * cos(i * M_PI / 180);
+        int y1 = y + r * sin(i * M_PI / 180);
+        int x2 = x + r * cos(i * M_PI / 180);
+        int y2 = y + r * sin(i * M_PI / 180);
+        SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
     }
 }
 
 void draw_ellipse(SDL_Renderer* renderer, int x, int y, int rx, int ry)
 {
-    int x1 = x - rx;
-    int y1 = y;
-    int x2 = x + rx;
-    int y2 = y;
-    int i = 0;
-    for (i = x1; i <= x2; i++)
+    //Line segments
+    for(int i = 0; i < 360; i++)
     {
-        int j = y + sqrt(ry * ry - (i - x) * (i - x) * ry * ry / rx / rx);
-        SDL_RenderDrawPoint(renderer, i, j);
-        j = y - sqrt(ry * ry - (i - x) * (i - x) * ry * ry / rx / rx);
-        SDL_RenderDrawPoint(renderer, i, j);
+        int x1 = x + rx * cos(i * M_PI / 180);
+        int y1 = y + ry * sin(i * M_PI / 180);
+        int x2 = x + rx * cos(i * M_PI / 180);
+        int y2 = y + ry * sin(i * M_PI / 180);
+        SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
     }
 }
 
@@ -96,8 +92,11 @@ void draw_fill_polyline(SDL_Renderer* renderer, SDL_Point* points, int num_point
         int j = 0;
         for (j = y1; j <= y2; j++)
         {
-            int x = x1 + (x2 - x1) * (j - y1) / (y2 - y1);
-            SDL_RenderDrawPoint(renderer, x, j);
+            if(y1 != y2)
+            {
+                int x = x1 + (x2 - x1) * (j - y1) / (y2 - y1);
+                SDL_RenderDrawPoint(renderer, x, j);
+            }
         }
     }
 }

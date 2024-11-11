@@ -64,15 +64,32 @@ CMAKE_BINARY_DIR = /home/surge/projects/phosphor/build
 
 # The main recursive "all" target.
 all: CMakeFiles/phosphor.dir/all
+all: test/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: test/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/phosphor.dir/clean
+clean: test/clean
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory test
+
+# Recursive "all" directory target.
+test/all: test/CMakeFiles/phosphor_test.dir/all
+.PHONY : test/all
+
+# Recursive "preinstall" directory target.
+test/preinstall:
+.PHONY : test/preinstall
+
+# Recursive "clean" directory target.
+test/clean: test/CMakeFiles/phosphor_test.dir/clean
+.PHONY : test/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/phosphor.dir
@@ -81,12 +98,12 @@ clean: CMakeFiles/phosphor.dir/clean
 CMakeFiles/phosphor.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/surge/projects/phosphor/build/CMakeFiles --progress-num=1,2,3,4 "Built target phosphor"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/surge/projects/phosphor/build/CMakeFiles --progress-num=1,2,3 "Built target phosphor"
 .PHONY : CMakeFiles/phosphor.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/phosphor.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/surge/projects/phosphor/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/surge/projects/phosphor/build/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/phosphor.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/surge/projects/phosphor/build/CMakeFiles 0
 .PHONY : CMakeFiles/phosphor.dir/rule
@@ -99,6 +116,32 @@ phosphor: CMakeFiles/phosphor.dir/rule
 CMakeFiles/phosphor.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/clean
 .PHONY : CMakeFiles/phosphor.dir/clean
+
+#=============================================================================
+# Target rules for target test/CMakeFiles/phosphor_test.dir
+
+# All Build rule for target.
+test/CMakeFiles/phosphor_test.dir/all: CMakeFiles/phosphor.dir/all
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/phosphor_test.dir/build.make test/CMakeFiles/phosphor_test.dir/depend
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/phosphor_test.dir/build.make test/CMakeFiles/phosphor_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/surge/projects/phosphor/build/CMakeFiles --progress-num=4,5 "Built target phosphor_test"
+.PHONY : test/CMakeFiles/phosphor_test.dir/all
+
+# Build rule for subdir invocation for target.
+test/CMakeFiles/phosphor_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/surge/projects/phosphor/build/CMakeFiles 5
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/phosphor_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/surge/projects/phosphor/build/CMakeFiles 0
+.PHONY : test/CMakeFiles/phosphor_test.dir/rule
+
+# Convenience name for target.
+phosphor_test: test/CMakeFiles/phosphor_test.dir/rule
+.PHONY : phosphor_test
+
+# clean rule for target.
+test/CMakeFiles/phosphor_test.dir/clean:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/phosphor_test.dir/build.make test/CMakeFiles/phosphor_test.dir/clean
+.PHONY : test/CMakeFiles/phosphor_test.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

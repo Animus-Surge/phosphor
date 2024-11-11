@@ -87,14 +87,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/surge/projects/phosphor/build/CMakeFiles /home/surge/projects/phosphor/build//CMakeFiles/progress.marks
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
+	cd /home/surge/projects/phosphor/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/surge/projects/phosphor/build/CMakeFiles /home/surge/projects/phosphor/build/test//CMakeFiles/progress.marks
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/surge/projects/phosphor/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 clean
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/clean
 .PHONY : clean
 
 # The main clean target
@@ -103,92 +103,56 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 preinstall
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 preinstall
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/surge/projects/phosphor/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named phosphor
+# Convenience name for target.
+test/CMakeFiles/phosphor_test.dir/rule:
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/phosphor_test.dir/rule
+.PHONY : test/CMakeFiles/phosphor_test.dir/rule
 
-# Build rule for target.
-phosphor: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 phosphor
-.PHONY : phosphor
-
-# fast build rule for target.
-phosphor/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/build
-.PHONY : phosphor/fast
-
-#=============================================================================
-# Target rules for targets named phosphor_test
-
-# Build rule for target.
-phosphor_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 phosphor_test
+# Convenience name for target.
+phosphor_test: test/CMakeFiles/phosphor_test.dir/rule
 .PHONY : phosphor_test
 
 # fast build rule for target.
 phosphor_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/phosphor_test.dir/build.make test/CMakeFiles/phosphor_test.dir/build
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/phosphor_test.dir/build.make test/CMakeFiles/phosphor_test.dir/build
 .PHONY : phosphor_test/fast
 
-src/engine/engine.o: src/engine/engine.cpp.o
-.PHONY : src/engine/engine.o
+src/main.o: src/main.cpp.o
+.PHONY : src/main.o
 
 # target to build an object file
-src/engine/engine.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/src/engine/engine.cpp.o
-.PHONY : src/engine/engine.cpp.o
+src/main.cpp.o:
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/phosphor_test.dir/build.make test/CMakeFiles/phosphor_test.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
 
-src/engine/engine.i: src/engine/engine.cpp.i
-.PHONY : src/engine/engine.i
-
-# target to preprocess a source file
-src/engine/engine.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/src/engine/engine.cpp.i
-.PHONY : src/engine/engine.cpp.i
-
-src/engine/engine.s: src/engine/engine.cpp.s
-.PHONY : src/engine/engine.s
-
-# target to generate assembly for a file
-src/engine/engine.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/src/engine/engine.cpp.s
-.PHONY : src/engine/engine.cpp.s
-
-src/engine/sdl/sdl_rendersys.o: src/engine/sdl/sdl_rendersys.cpp.o
-.PHONY : src/engine/sdl/sdl_rendersys.o
-
-# target to build an object file
-src/engine/sdl/sdl_rendersys.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/src/engine/sdl/sdl_rendersys.cpp.o
-.PHONY : src/engine/sdl/sdl_rendersys.cpp.o
-
-src/engine/sdl/sdl_rendersys.i: src/engine/sdl/sdl_rendersys.cpp.i
-.PHONY : src/engine/sdl/sdl_rendersys.i
+src/main.i: src/main.cpp.i
+.PHONY : src/main.i
 
 # target to preprocess a source file
-src/engine/sdl/sdl_rendersys.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/src/engine/sdl/sdl_rendersys.cpp.i
-.PHONY : src/engine/sdl/sdl_rendersys.cpp.i
+src/main.cpp.i:
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/phosphor_test.dir/build.make test/CMakeFiles/phosphor_test.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
 
-src/engine/sdl/sdl_rendersys.s: src/engine/sdl/sdl_rendersys.cpp.s
-.PHONY : src/engine/sdl/sdl_rendersys.s
+src/main.s: src/main.cpp.s
+.PHONY : src/main.s
 
 # target to generate assembly for a file
-src/engine/sdl/sdl_rendersys.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/phosphor.dir/build.make CMakeFiles/phosphor.dir/src/engine/sdl/sdl_rendersys.cpp.s
-.PHONY : src/engine/sdl/sdl_rendersys.cpp.s
+src/main.cpp.s:
+	cd /home/surge/projects/phosphor/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/phosphor_test.dir/build.make test/CMakeFiles/phosphor_test.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
 # Help Target
 help:
@@ -198,14 +162,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... phosphor"
 	@echo "... phosphor_test"
-	@echo "... src/engine/engine.o"
-	@echo "... src/engine/engine.i"
-	@echo "... src/engine/engine.s"
-	@echo "... src/engine/sdl/sdl_rendersys.o"
-	@echo "... src/engine/sdl/sdl_rendersys.i"
-	@echo "... src/engine/sdl/sdl_rendersys.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 .PHONY : help
 
 
@@ -217,6 +177,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/surge/projects/phosphor/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 
