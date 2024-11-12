@@ -37,18 +37,9 @@ void _sdl_run(SDL_Renderer* renderer) {
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-        draw_point(renderer, 10, 10);
-        draw_line(renderer, 20, 10, 110, 100);
-        draw_rect(renderer, 120, 10, 100, 100);
+        //Testing round 2: More curves and polygons
+        draw_curve(renderer, 10, 10, 10, 40, 80, 40);
 
-        SDL_Point points[] = {{230, 10}, {330, 10}, {330, 110}, {230, 110}};
-        draw_polyline(renderer, points, 4, true);
-        draw_circle(renderer, 400, 60, 50);
-        draw_ellipse(renderer, 510, 60, 50, 30);
-        draw_curve(renderer, 600, 10, 700, 110, 800, 10);
-
-        draw_fill_rect(renderer, 10, 120, 100, 100);
-        draw_fill_polyline(renderer, points, 4);
 
         SDL_RenderPresent(renderer);
 

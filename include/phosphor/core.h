@@ -15,11 +15,13 @@
 
 #define PHOSPHOR_ENGINE_DEFAULT_TITLE "Phosphor"
 
+// Core functions
+SDL_Point linear_interpolate(SDL_Point p1, SDL_Point p2, float t);
 
-// Scene class
-class Scene {
-
-}; // class Scene
+template <typename T>
+T linear_interpolate(T p1, T p2, float t) {
+    return p1 + (p2 - p1) * t;
+}
 
 // Phosphor engine class
 class Phosphor {
