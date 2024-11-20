@@ -20,9 +20,13 @@ void Phosphor::init() {
     this->renderer = SDL_CreateRenderer(this->window, -1, 0);
 }
 
-void _sdl_run(SDL_Renderer* renderer) {
+void _sdl_run(Phosphor* engine, SDL_Renderer* renderer) {
 
     SDL_Event event;
+
+    engine->current_scene = new Scene();
+
+    float delta = 0.0f;
 
     while(true) {
 
@@ -32,16 +36,20 @@ void _sdl_run(SDL_Renderer* renderer) {
             }
         }
 
+        //Updates
+        engine->current_scene->update();
+        engine->current_scene->fixed_update(delta);
+
+        //Clear
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-        //Testing round 2: More curves and polygons
-        draw_curve(renderer, 10, 10, 10, 40, 80, 40);
-
-
+        engine->current_scene->render(renderer);
+        
         SDL_RenderPresent(renderer);
+
+        //Compute delta time
+        delta = SDL_GetTicks();
 
     }
 
@@ -52,7 +60,7 @@ void _sdl_run(SDL_Renderer* renderer) {
 void _gl_run() {}
 
 void Phosphor::run() {
-    _sdl_run(this->renderer);
+    _sdl_run(this, this->renderer);
 }
 
 void Phosphor::shutdown() {

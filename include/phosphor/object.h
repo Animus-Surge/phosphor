@@ -9,12 +9,13 @@
 #include <string>
 #include <vector>
 
-#include "phosphor/component.h"
+#include "phosphor/core.h"
 
 class Object {
 private:
+    std::string name;
     std::map<std::string, Object*> children;
-    //std::vector<Component*> components;
+    std::map<std::string, Component*> components;
     Object* parent;
 public:
     Object() {
@@ -25,21 +26,60 @@ public:
             delete child.second;
         }
     }
-    void addChild(Object* child) {
-        this->children[child->getName()] = child;
-        child->setParent(this);
+
+    //Child management
+    void add_child(std::string name, Object* child) {
+        this->children[name] = child;
+        child->parent = this;
     }
-    void removeChild(Object* child) {
-        this->children.erase(child->getName());
-        child->setParent(nullptr);
+
+    Object* get_child(std::string name) {
+        return this->children[name];
     }
-    void setParent(Object* parent) {
-        this->parent = parent;
+
+    void remove_child(std::string name) {
+        this->children.erase(name);
     }
-    Object* getParent() {
-        return this->parent;
+
+    //Component management
+    void add_component(std::string name, Component* component) {
+        //TODO: check if component with name already exists
+        this->components[name] = component;
     }
-    std::string getName() {
-        return "Object";
+
+    Component* get_component_by_name(std::string name) {
+        return this->components[name];
     }
-};
+
+    void remove_component(std::string name) {
+        this->components.erase(name);
+    }
+
+    //Update functions
+    void update() {
+        for(auto& component : this->components) {
+            component.second->update();
+        }
+        for(auto& child : this->children) {
+            child.second->update();
+        }
+    }
+
+    void fixed_update(float delta) {
+        for(auto& component : this->components) {
+            component.second->fixed_update(delta);
+        }
+        for(auto& child : this->children) {
+            child.second->fixed_update(delta);
+        }
+    }
+
+    void render(SDL_Renderer* renderer) {
+        for(auto& component : this->components) {
+            component.second->render(renderer);
+        }
+        for(auto& child : this->children) {
+            child.second->render(renderer);
+        }
+    }
+}; // class Object
