@@ -12,31 +12,35 @@
 #include <map>
 #include <vector>
 
-class Phosphor {
+namespace phosphor {
 
-public:
-    Scene* current_scene;
+    class Phosphor {
 
-    void set_scene(Scene* scene) {
-        this->current_scene = scene;
-    }
-    void load_scene(std::string path);
+        public:
+            Scene* current_scene;
 
-    Phosphor(int width, int height, const char* title = "Phosphor") {
-        this->width = width;
-        this->height = height;
-        this->title = title;
-    };
-    ~Phosphor();
+            void set_scene(Scene* scene) {
+                this->current_scene = scene;
+            }
+            void load_scene(std::string path);
 
-    void init();
-    void run();
-    void shutdown();
+            Phosphor(int width, int height, const char* title = "Phosphor") {
+                this->width = width;
+                this->height = height;
+                this->title = title;
+            };
+            ~Phosphor();
 
-private:
-    SDL_Window* window;
-    const char* title;
-    int width, height;
-    SDL_Renderer* renderer;
+            void init();
+            void run();
+            void shutdown();
 
-}; // class Phosphor
+        private:
+            SDL_Window* window;
+            const char* title;
+            int width, height;
+            SDL_Renderer* renderer;
+
+    }; // class Phosphor
+
+} // namespace phosphor

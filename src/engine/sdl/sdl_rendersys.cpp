@@ -10,6 +10,8 @@
 #include <cmath>
 #include <vector>
 
+namespace phosphor::sdl {
+
 void draw_point(SDL_Renderer* renderer, int x, int y)
 {
     SDL_RenderDrawPoint(renderer, x, y);
@@ -184,5 +186,7 @@ void draw_fill_ellipse(SDL_Renderer* renderer, int x, int y, int rx, int ry)
         SDL_RenderDrawLine(renderer, i, j, i, y);
     }
 }
+
+} // namespace phosphor::sdl
 
 #endif // PHOSPHOR_SDL

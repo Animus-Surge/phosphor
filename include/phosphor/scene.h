@@ -12,57 +12,63 @@
 
 #include "phosphor/object.h"
 
-// Scene class
-class Scene {
-private:
-    std::string name;
-    std::map<std::string, Object*> objects;
+#include <SDL2/SDL.h>
 
-public:
-    Scene() {};
-    ~Scene() {};
+namespace phosphor {
 
-    void set_name(std::string name) {
-        this->name = name;
-    }
-    std::string get_name() {
-        return this->name;
-    }
+    // Scene class
+    class Scene {
+        private:
+            std::string name;
+            std::map<std::string, Object*> objects;
 
-    //Add an object to the scene
-    void add_object(std::string name, Object* object) {
-        objects[name] = object;
-    }
+        public:
+            Scene() {};
+            ~Scene() {};
 
-    //Get an object from the scene
-    Object* get_object(std::string name) {
-        return objects[name];
-    }
+            void set_name(std::string name) {
+                this->name = name;
+            }
+            std::string get_name() {
+                return this->name;
+            }
 
-    //Remove an object from the scene
-    void remove_object(std::string name) {
-        objects.erase(name);
-    }
+            //Add an object to the scene
+            void add_object(std::string name, Object* object) {
+                objects[name] = object;
+            }
 
-    //Update all objects in the scene
-    void update() {
-        for (auto& object : objects) {
-            object.second->update();
-        }
-    }
+            //Get an object from the scene
+            Object* get_object(std::string name) {
+                return objects[name];
+            }
 
-    //Fixed update all objects in the scene
-    void fixed_update(float delta) {
-        for (auto& object : objects) {
-            object.second->fixed_update(delta);
-        }
-    }
+            //Remove an object from the scene
+            void remove_object(std::string name) {
+                objects.erase(name);
+            }
 
-    //Render all objects in the scene
-    void render(SDL_Renderer* renderer) {
-        for (auto& object : objects) {
-            object.second->render(renderer);
-        }
-    }
+            //Update all objects in the scene
+            void update() {
+                for (auto& object : objects) {
+                    object.second->update();
+                }
+            }
 
-}; // class Scene
+            //Fixed update all objects in the scene
+            void fixed_update(float delta) {
+                for (auto& object : objects) {
+                    object.second->fixed_update(delta);
+                }
+            }
+
+            //Render all objects in the scene
+            void render(SDL_Renderer* renderer) {
+                for (auto& object : objects) {
+                    object.second->render(renderer);
+                }
+            }
+
+    }; // class Scene
+
+} // namespace phosphor
