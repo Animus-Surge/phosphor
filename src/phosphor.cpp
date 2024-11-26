@@ -11,4 +11,8 @@
 void phosphor_init() {
     printf("Phosphor %s\n", PHOSPHOR_VERSION_STRING);
 
+    Engine* engine = new Engine();
+    engine->run();
+
+    delete engine;
 }

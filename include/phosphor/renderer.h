@@ -5,6 +5,8 @@
  * Renderer system and base class declaration
  */
 
+#include <memory>
+
 class Renderer {
 public:
     virtual void init() = 0;
@@ -12,4 +14,4 @@ public:
     virtual void render() = 0;
 }; // class Renderer
 
-std::unique_ptr<Renderer> create_renderer();
+std::unique_ptr<Renderer> create_renderer(int type);
