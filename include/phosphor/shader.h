@@ -35,6 +35,11 @@ public:
     void use();
 
     /**
+     * Drop the shader
+     */
+    void drop();
+
+    /**
      * Set a boolean uniform
      * @param name Name of the uniform
      * @param value Value to set

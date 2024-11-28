@@ -11,8 +11,11 @@
 void phosphor_init() {
     printf("Phosphor %s\n", PHOSPHOR_VERSION_STRING);
 
-    Engine* engine = new Engine();
-    engine->run();
+    // Initialize the renderer
+    std::unique_ptr<Renderer> renderer = create_renderer(0);
+    renderer->init();
+    renderer->run();
+    renderer->shutdown();
 
-    delete engine;
+    printf("Phosphor shutting down\n");
 }

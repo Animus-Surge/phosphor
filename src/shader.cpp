@@ -93,6 +93,10 @@ void Shader::use() {
     glUseProgram(this->id);
 }
 
+void Shader::drop() {
+    glUseProgram(0);
+}
+
 //TODO: implement uniforms
 
 void Shader::set_bool(const std::string &name, bool value) const {

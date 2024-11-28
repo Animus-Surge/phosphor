@@ -8,9 +8,11 @@
 #include "phosphor/renderer.h"
 
 class OpenGLRenderer : public Renderer {
+protected:
+    SDL_GLContext context;        // OpenGL context
 public:
     void init() override;
     void shutdown() override;
-    void render() override;
+    void run() override;
 }; // class OpenGLRenderer
 

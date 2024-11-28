@@ -13,7 +13,7 @@
 
 #define PHOSPHOR_VERSION_STRING "0.1.1"
 
-#include "phosphor/engine.h"
+#include "phosphor/renderer.h"
 
 // Entry point
 

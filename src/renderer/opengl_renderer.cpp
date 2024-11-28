@@ -6,115 +6,87 @@
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_opengl3.h"
+#include "spdlog/spdlog.h"
 
+#include "phosphor/mesh/cube.h"
 #include "phosphor/renderer.h"
 #include "phosphor/backends/opengl_renderer.h"
 #include "phosphor/shader.h"
-
-Shader* shader;
+#include "phosphor/camera.h"
 
 void OpenGLRenderer::init() {
-    //SDL initialization
-
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
-        printf("SDL_Init Error: %s\n", SDL_GetError());
-        exit(1); //TODO: return with error code instead
+        spdlog::critical("SDL_Init: {}", SDL_GetError());
+        return;
     }
+
+    this->window = SDL_CreateWindow("Phosphor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1366, 768, SDL_WINDOW_OPENGL);
+    if(this->window == nullptr) {
+        spdlog::critical("SDL_CreateWindow: {}", SDL_GetError());
+        return;
+    }
+
+    this->context = SDL_GL_CreateContext(this->window);
+    if(this->context == nullptr) {
+        spdlog::critical("SDL_GL_CreateContext: {}", SDL_GetError());
+        return;
+    }
+
+    if(glewInit() != GLEW_OK) {
+        spdlog::critical("glewInit failed");
+        return;
+    }
+
+    spdlog::info("OpenGL version: {}", glGetString(GL_VERSION));
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
     
-    //OpenGL attributes
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-    //SDL window creation and OpenGL context setup
-    //TODO: all error checking
-    SDL_Window* win = SDL_CreateWindow("Phosphor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    if(win == nullptr) {
-        printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
-        SDL_Quit();
-        exit(1); //TODO: return with error code instead
-    }
-    SDL_GLContext context = SDL_GL_CreateContext(win);
-    if(context == nullptr) {
-        printf("SDL_GL_CreateContext Error: %s\n", SDL_GetError());
-        SDL_DestroyWindow(win);
-        SDL_Quit();
-        exit(1);
-    }
-
-    int current = SDL_GL_MakeCurrent(win, context);
-    if(current != 0) {
-        printf("SDL_GL_MakeCurrent Error: %s\n", SDL_GetError());
-        SDL_GL_DeleteContext(context);
-        SDL_DestroyWindow(win);
-        SDL_Quit();
-        exit(1);
-    }
-
-    //GLEW initialization
-    glewExperimental = GL_TRUE;
-    GLenum glew_error = glewInit();
-
-    if(glew_error != GLEW_OK) {
-        printf("GLEW Error: %s\n", glewGetErrorString(glew_error));
-        SDL_GL_DeleteContext(context);
-        SDL_DestroyWindow(win);
-        SDL_Quit();
-        exit(1);
-    }
-
-    //Shader program
-    shader = new Shader("resources/vert.glsl", "resources/frag.glsl");
-
-}
+    ImGui_ImplSDL2_InitForOpenGL(this->window, this->context);
+    ImGui_ImplOpenGL3_Init("#version 330");
+} // OpenGLRenderer::init
 
 void OpenGLRenderer::shutdown() {
-    SDL_GL_DeleteContext(SDL_GL_GetCurrentContext());
-    SDL_DestroyWindow(SDL_GL_GetCurrentWindow());
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    SDL_GL_DeleteContext(this->context);
+    SDL_DestroyWindow(this->window);
     SDL_Quit();
-}
+} // OpenGLRenderer::shutdown
 
-void OpenGLRenderer::render() {
-    SDL_Window* window = SDL_GL_GetCurrentWindow();
+void OpenGLRenderer::run() {
+    bool running = true;
+    SDL_Event event;
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    while(running) {
+        while(SDL_PollEvent(&event)) {
+            ImGui_ImplSDL2_ProcessEvent(&event);
+            if(event.type == SDL_QUIT) {
+                running = false;
+            }
+        }
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
 
-    shader->use();
-    
-    float vertices[] = {
-       -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f,  0.5f, 0.0f
-    };
+        ImGui::Begin("Hello, world!");
+        ImGui::Text("This is some useful text.");
+        ImGui::End();
 
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+        ImGui::Render();
+        glViewport(0, 0, 1366, 768);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glDisableVertexAttribArray(0);
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-        
-    glUseProgram(0);
-    
-    
-    SDL_GL_SwapWindow(window);
-
-}
-
-
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        SDL_GL_SwapWindow(this->window);
+    }
+} // OpenGLRenderer::run
