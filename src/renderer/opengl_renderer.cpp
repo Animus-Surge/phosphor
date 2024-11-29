@@ -19,19 +19,19 @@
 
 void OpenGLRenderer::init() {
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
-        spdlog::critical("SDL_Init: {}", SDL_GetError());
+        spdlog::critical("SDL_Init: {}", fmt::ptr(SDL_GetError()));
         return;
     }
 
     this->window = SDL_CreateWindow("Phosphor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1366, 768, SDL_WINDOW_OPENGL);
     if(this->window == nullptr) {
-        spdlog::critical("SDL_CreateWindow: {}", SDL_GetError());
+        spdlog::critical("SDL_CreateWindow: {}", fmt::ptr(SDL_GetError()));
         return;
     }
 
     this->context = SDL_GL_CreateContext(this->window);
     if(this->context == nullptr) {
-        spdlog::critical("SDL_GL_CreateContext: {}", SDL_GetError());
+        spdlog::critical("SDL_GL_CreateContext: {}", fmt::ptr(SDL_GetError()));
         return;
     }
 
@@ -40,7 +40,9 @@ void OpenGLRenderer::init() {
         return;
     }
 
-    spdlog::info("OpenGL version: {}", glGetString(GL_VERSION));
+    std::string gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    std::string gl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    spdlog::info("OpenGL info [version: {}, vendor: {}]", gl_version, gl_vendor);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -77,9 +79,7 @@ void OpenGLRenderer::run() {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Hello, world!");
-        ImGui::Text("This is some useful text.");
-        ImGui::End();
+        ImGui::ShowDemoWindow();
 
         ImGui::Render();
         glViewport(0, 0, 1366, 768);
