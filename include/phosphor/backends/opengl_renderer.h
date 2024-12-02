@@ -14,5 +14,7 @@ public:
     void init() override;
     void shutdown() override;
     void run() override;
+
+    void sigterm() override;
 }; // class OpenGLRenderer
 

@@ -18,6 +18,9 @@ public:
     virtual void init() = 0;
     virtual void shutdown() = 0;
     virtual void run() = 0;
+
+    // Signal handler
+    virtual void sigterm() = 0;
 }; // class Renderer
 
 std::unique_ptr<Renderer> create_renderer(int type);

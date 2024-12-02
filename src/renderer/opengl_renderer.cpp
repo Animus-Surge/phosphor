@@ -11,13 +11,19 @@
 #include "imgui_impl_opengl3.h"
 #include "spdlog/spdlog.h"
 
+#include "phosphor/mesh/axis_widget.h"
 #include "phosphor/mesh/cube.h"
 #include "phosphor/renderer.h"
 #include "phosphor/backends/opengl_renderer.h"
 #include "phosphor/shader.h"
 #include "phosphor/camera.h"
 
+bool running = true;
+Camera* camera;
+Shader* shader;
+
 void OpenGLRenderer::init() {
+    spdlog::info("Creating OpenGL Renderer...");
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         spdlog::critical("SDL_Init: {}", fmt::ptr(SDL_GetError()));
         return;
@@ -63,30 +69,126 @@ void OpenGLRenderer::shutdown() {
     SDL_Quit();
 } // OpenGLRenderer::shutdown
 
+void OpenGLRenderer::sigterm() {
+    running = false;
+}
+
 void OpenGLRenderer::run() {
-    bool running = true;
+    //TODO: add a debug reset keybind
+    //TODO: event controller
     SDL_Event event;
+
+    bool mouse_captured = false;
+
+    AxisWidget* axis_widget = new AxisWidget();
+    Cube* cube = new Cube();
+    cube->translate(glm::vec3(0.0f, 0.0f, -5.0f));
+
+    shader = new Shader("./resources/vert.glsl", "./resources/frag.glsl");
+    camera = new Camera(1366, 768);
+
+    camera->set_position(glm::vec3(-10.0f, 2.0f, 3.0f));
 
     while(running) {
         while(SDL_PollEvent(&event)) {
             ImGui_ImplSDL2_ProcessEvent(&event);
-            if(event.type == SDL_QUIT) {
-                running = false;
+            
+            switch(event.type) {
+                case SDL_QUIT:
+                    running = false;
+                    break;
+                case SDL_KEYDOWN:
+                    if(event.key.keysym.sym == SDLK_ESCAPE) {
+                        running = false;
+                    }
+                    // TODO: move to camera class, add speed, down up detection; OR: scripting?
+                    //Movement
+                    if(event.key.keysym.sym == SDLK_w) { //forward
+                        camera->set_position(camera->position + camera->direction);
+                    }
+                    if(event.key.keysym.sym == SDLK_s) { //back
+                        camera->set_position(camera->position - camera->direction);
+                    }
+                    if(event.key.keysym.sym == SDLK_a) { //right
+                        camera->set_position(camera->position + camera->right);
+                    }
+                    if(event.key.keysym.sym == SDLK_d) { //left
+                        camera->set_position(camera->position - camera->right);
+                    }
+                    if(event.key.keysym.sym == SDLK_q) { //down
+                        camera->set_position(camera->position - glm::vec3(0.0f, 1.0f, 0.0f));
+                    }
+                    if(event.key.keysym.sym == SDLK_e) { //up
+                        camera->set_position(camera->position + glm::vec3(0.0f, 1.0f, 0.0f));
+                    }
+
+                    if(event.key.keysym.sym == SDLK_c) { //capture toggle
+                        mouse_captured = !mouse_captured;
+                        SDL_SetRelativeMouseMode(mouse_captured ? SDL_TRUE : SDL_FALSE);
+                        spdlog::debug("Mouse capture: {}", mouse_captured);
+                    }
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    if(event.button.button == SDL_BUTTON_LEFT) {
+                        spdlog::debug("Mouse button down at ({}, {})", event.button.x, event.button.y);
+                    }
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if(event.button.button == SDL_BUTTON_LEFT) {
+                        spdlog::debug("Mouse button up at ({}, {})", event.button.x, event.button.y);
+                    }
+                    break;
+
+                //Mouse motion
+                case SDL_MOUSEMOTION:
+                    if(!mouse_captured) { //Ignore mouse motion if not captured
+                        break;
+                    }
+                    //Camera rotation
+                    camera->angle_x -= event.motion.xrel * 0.01f;
+                    camera->angle_y += event.motion.yrel * 0.01f;
+
+                    //Clamp y angle
+                    if(camera->angle_y > 1.57f) {
+                        camera->angle_y = 1.57f;
+                    }
+                    break;
+
+                default:
+                    break;
             }
         }
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
+
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
+        ImGui::Begin("Debug");
+        ImGui::Text("Camera position: (%f, %f, %f)", camera->position.x, camera->position.y, camera->position.z);
+        ImGui::Text("Camera direction: (%f, %f, %f)", camera->direction.x, camera->direction.y, camera->direction.z);
+        ImGui::Text("Camera right: (%f, %f, %f)", camera->right.x, camera->right.y, camera->right.z);
+        ImGui::Text("Camera angle_x: %f", camera->angle_x);
+        ImGui::Text("Camera angle_y: %f", camera->angle_y);
+        ImGui::End();
 
         ImGui::Render();
+
         glViewport(0, 0, 1366, 768);
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        axis_widget->render();
+
+        shader->use();
+        cube->render();
+        shader->drop();
+
+        //Render ImGui
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         SDL_GL_SwapWindow(this->window);
+
+        camera->update();
     }
 } // OpenGLRenderer::run

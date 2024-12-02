@@ -11,6 +11,8 @@
 #include <unistd.h>
 
 #include <GL/glew.h>
+#include "spdlog/spdlog.h"
+#include "spdlog/fmt/std.h"
 
 #include "phosphor/shader.h"
 
@@ -22,14 +24,30 @@ Shader::Shader(const char* vertex_path, const char* fragment_path) {
     int success;
     char info_log[512];
 
+    //Print working directory
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+    spdlog::debug("Current working directory: {}", cwd);
+
+    //Combine cwd with shader paths
+    std::string vertex_path_str = std::string(vertex_path);
+    std::string fragment_path_str = std::string(fragment_path);
+
+    std::filesystem::path cwd_path(cwd);
+    std::filesystem::path vertex_path_fs(vertex_path_str);
+    std::filesystem::path fragment_path_fs(fragment_path_str);
+
+    std::filesystem::path vertex_full_path = cwd_path / vertex_path_fs;
+    std::filesystem::path fragment_full_path = cwd_path / fragment_path_fs;
+
     //Throw exceptions on file read failure
     vertex_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fragment_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     //Read files
     try {
-        vertex_file.open(vertex_path);
-        fragment_file.open(fragment_path);
+        vertex_file.open(vertex_full_path);
+        fragment_file.open(fragment_full_path);
 
         std::stringstream vertex_stream, fragment_stream;
 
@@ -42,8 +60,15 @@ Shader::Shader(const char* vertex_path, const char* fragment_path) {
         vertex_code = vertex_stream.str();
         fragment_code = fragment_stream.str();
     } catch(std::ifstream::failure e) {
-        printf("Error reading shader file: %s\n", e.what());
+        spdlog::error("Shader file read failed: {}", e.what());
+
+        spdlog::error("Vertex shader path: {}", vertex_full_path);
+        spdlog::error("Fragment shader path: {}", fragment_full_path);
+        return;
     }
+
+    spdlog::info("Loaded vertex shader from {}", fmt::ptr(vertex_path));
+    spdlog::info("Loaded fragment shader from {}", fmt::ptr(fragment_path));
 
     //Compile shaders
     const char* vertex_shader = vertex_code.c_str();
@@ -56,7 +81,7 @@ Shader::Shader(const char* vertex_path, const char* fragment_path) {
     glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &success);
     if(!success) {
         glGetShaderInfoLog(vertex_shader_id, 512, NULL, info_log);
-        printf("Vertex shader compilation failed: %s\n", info_log);
+        spdlog::error("Vertex shader compilation failed: {}", fmt::ptr(info_log));
         return;
     }
 
@@ -67,7 +92,7 @@ Shader::Shader(const char* vertex_path, const char* fragment_path) {
     glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &success);
     if(!success) {
         glGetShaderInfoLog(fragment_shader_id, 512, NULL, info_log);
-        printf("Fragment shader compilation failed: %s\n", info_log);
+        spdlog::error("Fragment shader compilation failed: {}", fmt::ptr(info_log));
         return;
     }
 
@@ -79,10 +104,12 @@ Shader::Shader(const char* vertex_path, const char* fragment_path) {
     glGetProgramiv(this->id, GL_LINK_STATUS, &success);
     if(!success) {
         glGetProgramInfoLog(this->id, 512, NULL, info_log);
-        printf("Shader program linking failed: %s\n", info_log);
+        spdlog::error("Shader program linking failed: {}", fmt::ptr(info_log));
         this->id = -1;
         return;
     }
+
+    spdlog::info("Shader program created with ID {}", this->id);
 }
 
 Shader::~Shader() {

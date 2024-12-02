@@ -26,6 +26,8 @@
 
 void phosphor_init();
 
+// Utility functions
+
 static inline std::string phosphor_version() {
     return "Phosphor " + std::to_string(PHOSPHOR_VERSION_MAJOR) + "." + std::to_string(PHOSPHOR_VERSION_MINOR) + "." + std::to_string(PHOSPHOR_VERSION_PATCH)
         + (PHOSPHOR_ALPHA ? " alpha" : "") + (PHOSPHOR_BETA ? " beta" : "") + (PHOSPHOR_RELEASE ? " release" : "") + (PHOSPHOR_DEBUG ? " (dev)" : "");

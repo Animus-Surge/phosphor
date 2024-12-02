@@ -77,3 +77,11 @@ void Cube::render() {
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+
+void Cube::set_transform(glm::mat4 transform) {
+    this->transform = transform;
+
+    //Update uniform buffer
+    glBindBuffer(GL_UNIFORM_BUFFER, this->uniform_buffer_id);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), &this->transform, GL_DYNAMIC_DRAW);
+}

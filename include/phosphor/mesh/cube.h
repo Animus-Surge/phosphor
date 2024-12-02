@@ -23,4 +23,6 @@ public:
      * Render the cube
      */
     void render() override;
+
+    void set_transform(glm::mat4 transform);
 }; // class Cube

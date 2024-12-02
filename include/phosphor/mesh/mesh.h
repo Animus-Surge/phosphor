@@ -55,6 +55,7 @@ public:
     unsigned int get_ibo() { return index_buffer_id; }
     unsigned int get_ubo() { return uniform_buffer_id; }
 
+    //TODO: regen ubo
     void set_transform(glm::mat4 transform) { this->transform = transform; }
     glm::mat4 get_transform() { return this->transform; }
 
