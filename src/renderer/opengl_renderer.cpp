@@ -127,6 +127,13 @@ void OpenGLRenderer::run() {
                         SDL_SetRelativeMouseMode(mouse_captured ? SDL_TRUE : SDL_FALSE);
                         spdlog::debug("Mouse capture: {}", mouse_captured);
                     }
+
+                    if(event.key.keysym.sym == SDLK_r) { //reset
+                        //Reset camera
+                        camera = new Camera(1366, 768);
+                        camera->set_position(glm::vec3(-10.0f, 2.0f, 3.0f));
+                        mouse_captured = false;
+                    }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     if(event.button.button == SDL_BUTTON_LEFT) {
@@ -140,23 +147,27 @@ void OpenGLRenderer::run() {
                     break;
 
                 //Mouse motion
-                case SDL_MOUSEMOTION:
+                case SDL_MOUSEMOTION: {
                     if(!mouse_captured) { //Ignore mouse motion if not captured
                         break;
                     }
-                    //Camera rotation
-                    camera->angle_x -= event.motion.xrel * 0.01f;
-                    camera->angle_y += event.motion.yrel * 0.01f;
 
-                    //Clamp y angle
-                    if(camera->angle_y > 1.57f) {
-                        camera->angle_y = 1.57f;
-                    }
+                    float dx = event.motion.xrel;
+                    float dy = event.motion.yrel;
+
+                    float sensitivity = 0.005f;
+
+                    camera->rotate(dx * sensitivity, dy * sensitivity);
+
                     break;
-
+                    }
                 default:
                     break;
             }
+        }
+        //Lock cursor to center
+        if(mouse_captured) {
+            SDL_WarpMouseInWindow(this->window, 1366 / 2, 768 / 2);
         }
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -165,11 +176,37 @@ void OpenGLRenderer::run() {
         ImGui::NewFrame();
 
         ImGui::Begin("Debug");
-        ImGui::Text("Camera position: (%f, %f, %f)", camera->position.x, camera->position.y, camera->position.z);
-        ImGui::Text("Camera direction: (%f, %f, %f)", camera->direction.x, camera->direction.y, camera->direction.z);
-        ImGui::Text("Camera right: (%f, %f, %f)", camera->right.x, camera->right.y, camera->right.z);
-        ImGui::Text("Camera angle_x: %f", camera->angle_x);
-        ImGui::Text("Camera angle_y: %f", camera->angle_y);
+ 
+        if(ImGui::CollapsingHeader("Camera Info")) {
+            ImGui::BeginChild("camera scroll");
+            ImGui::Text("Position: (%.2f, %.2f, %.2f)", camera->position.x, camera->position.y, camera->position.z);
+            
+            ImGui::Text("Angle X: %.2f", camera->angle_x);
+            ImGui::Text("Angle Y: %.2f", camera->angle_y);
+
+            if(ImGui::CollapsingHeader("Matrices")) {
+                if(ImGui::CollapsingHeader("View Matrix")) {
+                    glm::mat4 view_matrix = camera->get_view_matrix();
+                    for(int i = 0; i < 4; i++) {
+                        ImGui::Text("%.2f %.2f %.2f %.2f", view_matrix[i][0], view_matrix[i][1], view_matrix[i][2], view_matrix[i][3]);
+                    }
+                }
+                if(ImGui::CollapsingHeader("Projection Matrix")) {
+                    glm::mat4 projection_matrix = camera->get_projection_matrix();
+                    for(int i = 0; i < 4; i++) {
+                        ImGui::Text("%.2f %.2f %.2f %.2f", projection_matrix[i][0], projection_matrix[i][1], projection_matrix[i][2], projection_matrix[i][3]);
+                    }
+                }
+                if(ImGui::CollapsingHeader("PV Matrix")) {
+                    glm::mat4 pv_matrix = camera->get_pv_matrix();
+                    for(int i = 0; i < 4; i++) {
+                        ImGui::Text("%.2f %.2f %.2f %.2f", pv_matrix[i][0], pv_matrix[i][1], pv_matrix[i][2], pv_matrix[i][3]);
+                    }
+                }
+            }
+            ImGui::EndChild();
+        }
+
         ImGui::End();
 
         ImGui::Render();
@@ -181,14 +218,12 @@ void OpenGLRenderer::run() {
         axis_widget->render();
 
         shader->use();
-        cube->render();
+        //cube->render();
         shader->drop();
 
         //Render ImGui
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         SDL_GL_SwapWindow(this->window);
-
-        camera->update();
     }
 } // OpenGLRenderer::run

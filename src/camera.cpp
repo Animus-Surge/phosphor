@@ -8,8 +8,11 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <spdlog/spdlog.h>
 
 #include "phosphor/camera.h"
+
+//TODO: input event handler, componentize
 
 void Camera::generate_view_matrix() {
     this->view_matrix = glm::lookAt(
@@ -44,6 +47,9 @@ Camera::Camera(int aspect_width, int aspect_height) { //TODO: add arguments
 
     this->last_anglex = this->angle_x;
     this->last_angley = this->angle_y;
+
+    //Compute right vector
+    this->right = glm::normalize(glm::cross(this->direction, this->up));
 
     //Create matrices
     this->generate_view_matrix();
@@ -85,20 +91,40 @@ Camera::~Camera() {
     glDeleteBuffers(1, &this->cam_ubo);
 }
 
-void Camera::update() { //TODO: do this calculation elsewhere
-    if(this->last_anglex != this->angle_x || this->last_angley != this->angle_y) {
-        this->direction = glm::vec3(
-                cos(this->angle_x) * cos(this->angle_y),
-                sin(this->angle_y),
-                sin(this->angle_x) * cos(this->angle_y)
-                );
-        this->right = glm::normalize(glm::cross(this->direction, glm::vec3(0.0f, 1.0f, 0.0f)));
-        this->generate_view_matrix();
-        this->generate_pv_matrix();
-        this->regen_buffers();
+void Camera::translate(glm::vec3 position) {
+    this->position += position;
+    this->generate_view_matrix();
+    this->generate_pv_matrix();
+    this->regen_buffers();
+}
 
-        this->last_anglex = this->angle_x;
-        this->last_angley = this->angle_y;
-    }
+void Camera::translate(float x, float y, float z) {
+    this->position += glm::vec3(x, y, z);
+    this->generate_view_matrix();
+    this->generate_pv_matrix();
+    this->regen_buffers();
+}
+
+void Camera::rotate(float x, float y) {
+    this->angle_x += x;
+    this->angle_y += y;
+
+    //Clamp y angle
+    this->angle_y = glm::clamp(this->angle_y, -1.57f, 1.57f);
+
+    //Compute direction
+    this->direction = glm::normalize(glm::vec3(
+                cos(this->angle_y) * sin(this->angle_x),
+                sin(this->angle_y),
+                cos(this->angle_y) * cos(this->angle_x)
+                ));
+
+    //Compute right vector
+    this->right = glm::normalize(glm::cross(this->direction, this->up));
+
+    this->generate_view_matrix();
+    this->generate_pv_matrix();
+    this->regen_buffers();
+    
 }
 

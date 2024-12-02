@@ -36,22 +36,29 @@ protected:
 
 public:
     //Rotation
-    float angle_x = (float)M_PI;
+    float angle_x = 0.0f;
     float angle_y = 0.0f;
     
     //Camera vectors
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 direction = glm::vec3(1.0f, 0.0f, 0.0f);
-    glm::vec3 right = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 right;
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     
     Camera(int aspect_width, int aspect_height);
     ~Camera();
 
-    void update();
-
     void set_aspect_ratio(int aspect_width, int aspect_height);
     void set_position(glm::vec3 position);
     void set_position(float x, float y, float z);
+
+    //Better transform functions
+    void translate(glm::vec3 translation);
+    void translate(float x, float y, float z);
+
+    void rotate(float x, float y);
+
+    //no scale function, camera doesn't need it
 
     glm::mat4 get_view_matrix() { return view_matrix; }
     glm::mat4 get_projection_matrix() { return projection_matrix; }
