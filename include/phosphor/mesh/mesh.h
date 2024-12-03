@@ -56,10 +56,24 @@ public:
     unsigned int get_ubo() { return uniform_buffer_id; }
 
     //TODO: regen ubo
-    void set_transform(glm::mat4 transform) { this->transform = transform; }
+    virtual void regen_ubo() = 0;
+
+    void set_transform(glm::mat4 transform) { 
+        this->transform = transform; 
+        this->regen_ubo();
+    }
     glm::mat4 get_transform() { return this->transform; }
 
-    void translate(glm::vec3 translation) { this->transform = glm::translate(this->transform, translation); }
-    void rotate(float angle, glm::vec3 axis) { this->transform = glm::rotate(this->transform, angle, axis); }
-    void scale(glm::vec3 scale) { this->transform = glm::scale(this->transform, scale); }
+    void translate(glm::vec3 translation) { 
+        this->transform = glm::translate(this->transform, translation); 
+        this->regen_ubo();
+    }
+    void rotate(float angle, glm::vec3 axis) { 
+        this->transform = glm::rotate(this->transform, angle, axis); 
+        this->regen_ubo();
+    }
+    void scale(glm::vec3 scale) { 
+        this->transform = glm::scale(this->transform, scale); 
+        this->regen_ubo();
+    }
 }; // class Mesh

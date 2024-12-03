@@ -78,10 +78,13 @@ void Cube::render() {
     glBindVertexArray(0);
 }
 
-void Cube::set_transform(glm::mat4 transform) {
-    this->transform = transform;
-
-    //Update uniform buffer
+void Cube::regen_ubo() {
+    //Regenerate uniform buffer object
     glBindBuffer(GL_UNIFORM_BUFFER, this->uniform_buffer_id);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), &this->transform, GL_DYNAMIC_DRAW);
+}
+
+void Cube::set_transform(glm::mat4 transform) {
+    this->transform = transform;
+    this->regen_ubo();
 }

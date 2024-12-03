@@ -24,5 +24,10 @@ public:
      */
     void render() override;
 
+    /**
+     * Regenerate the uniform buffer object
+     */
+    void regen_ubo() override;
+
     void set_transform(glm::mat4 transform);
 }; // class Cube

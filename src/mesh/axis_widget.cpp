@@ -54,6 +54,7 @@ AxisWidget::~AxisWidget() {
 void AxisWidget::render() {
     this->axis_shader->use();
     glBindVertexArray(this->vertex_array);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, this->uniform_buffer_id);
     glDrawArrays(GL_LINES, 0, 6);
     this->axis_shader->drop();
     glBindVertexArray(0);

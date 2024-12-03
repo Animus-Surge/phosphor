@@ -31,9 +31,6 @@ protected:
     void generate_pv_matrix();
     void regen_buffers();
 
-    float last_anglex;
-    float last_angley;
-
 public:
     //Rotation
     float angle_x = 0.0f;
@@ -41,7 +38,7 @@ public:
     
     //Camera vectors
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 direction = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 direction = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 right;
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     
@@ -55,10 +52,7 @@ public:
     //Better transform functions
     void translate(glm::vec3 translation);
     void translate(float x, float y, float z);
-
     void rotate(float x, float y);
-
-    //no scale function, camera doesn't need it
 
     glm::mat4 get_view_matrix() { return view_matrix; }
     glm::mat4 get_projection_matrix() { return projection_matrix; }

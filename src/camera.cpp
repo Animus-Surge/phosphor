@@ -18,7 +18,7 @@ void Camera::generate_view_matrix() {
     this->view_matrix = glm::lookAt(
             this->position,
             this->position + this->direction,
-            cross(this->direction, this->right)
+            glm::vec3(0.0f, 1.0f, 0.0f)
             );
 }
 void Camera::generate_projection_matrix() {
@@ -43,13 +43,13 @@ void Camera::regen_buffers() {
 }
 
 Camera::Camera(int aspect_width, int aspect_height) { //TODO: add arguments
-    this->aspect_ratio = 1366.0f / 768.0f;
+    this->aspect_ratio = (float)aspect_width / (float)aspect_height; 
 
-    this->last_anglex = this->angle_x;
-    this->last_angley = this->angle_y;
+    //Normalize vectors
+    this->direction = glm::normalize(this->direction);
 
     //Compute right vector
-    this->right = glm::normalize(glm::cross(this->direction, this->up));
+    this->right = glm::normalize(glm::cross(this->direction, glm::vec3(0.0f, 1.0f, 0.0f)));
 
     //Create matrices
     this->generate_view_matrix();
@@ -105,26 +105,24 @@ void Camera::translate(float x, float y, float z) {
     this->regen_buffers();
 }
 
+//x and y are already scaled and clamped
 void Camera::rotate(float x, float y) {
-    this->angle_x += x;
-    this->angle_y += y;
+    this->angle_x -= x * 0.005f;
+    this->angle_y -= y * 0.005f;
 
     //Clamp y angle
-    this->angle_y = glm::clamp(this->angle_y, -1.57f, 1.57f);
+    this->angle_y = glm::clamp(this->angle_y, -1.0f, 1.0f);
 
-    //Compute direction
     this->direction = glm::normalize(glm::vec3(
                 cos(this->angle_y) * sin(this->angle_x),
                 sin(this->angle_y),
                 cos(this->angle_y) * cos(this->angle_x)
                 ));
 
-    //Compute right vector
-    this->right = glm::normalize(glm::cross(this->direction, this->up));
+    this->right = glm::normalize(glm::cross(this->direction, glm::vec3(0.0f, 1.0f, 0.0f)));
 
     this->generate_view_matrix();
     this->generate_pv_matrix();
     this->regen_buffers();
-    
 }
 
