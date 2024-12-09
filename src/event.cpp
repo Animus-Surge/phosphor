@@ -52,4 +52,6 @@ bool is_mousedown(int button) {
     return mousestates[button];
 }
 
-
+SDL_Point get_mouse_position() {
+    return mouse_position;
+}

@@ -22,7 +22,7 @@ public:
      * @param vertex_path Path to the vertex shader
      * @param fragment_path Path to the fragment shader
      */
-    Shader(const char* vertex_path, const char* fragment_path);
+    Shader(std::string vertex_path, std::string fragment_path);
 
     /**
      * Destructor

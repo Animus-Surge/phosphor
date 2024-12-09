@@ -14,7 +14,9 @@
 #include "phosphor/event.h"
 #include "phosphor/mesh/axis_widget.h"
 #include "phosphor/mesh/cube.h"
+#include "phosphor/mesh/worldgrid.h"
 #include "phosphor/renderer.h"
+#include "phosphor/light/directional.h"
 #include "phosphor/backends/opengl_renderer.h"
 #include "phosphor/shader.h"
 #include "phosphor/camera.h"
@@ -42,24 +44,42 @@ glm::vec3 camera_direction;
 glm::vec3 camera_right;
 glm::vec3 camera_up;
 
-void OpenGLRenderer::init() {
-    spdlog::info("Creating OpenGL Renderer...");
-    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
-        spdlog::critical("SDL_Init: {}", fmt::ptr(SDL_GetError()));
+void GLAPIENTRY message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* user_param) {
+    if(severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
         return;
     }
 
+    spdlog::error("OpenGL error: {}", message);
+}
+
+void OpenGLRenderer::init() {
+    spdlog::info("Creating OpenGL Renderer...");
+    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
+        std::string error = SDL_GetError();
+        spdlog::critical("SDL_Init: {}", error);
+        return;
+    }
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+
     this->window = SDL_CreateWindow("Phosphor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1366, 768, SDL_WINDOW_OPENGL);
     if(this->window == nullptr) {
-        spdlog::critical("SDL_CreateWindow: {}", fmt::ptr(SDL_GetError()));
+        std::string error = SDL_GetError();
+        spdlog::critical("SDL_CreateWindow: {}", error);
         return;
     }
 
     this->context = SDL_GL_CreateContext(this->window);
     if(this->context == nullptr) {
-        spdlog::critical("SDL_GL_CreateContext: {}", fmt::ptr(SDL_GetError()));
+        std::string error = SDL_GetError();
+        spdlog::critical("SDL_GL_CreateContext: {}", error);
         return;
     }
+    SDL_GL_MakeCurrent(this->window, this->context);
+
 
     if(glewInit() != GLEW_OK) {
         spdlog::critical("glewInit failed");
@@ -89,37 +109,6 @@ void OpenGLRenderer::shutdown() {
     SDL_Quit();
 } // OpenGLRenderer::shutdown
 
-void regen_camera() {
-    //Create UBO
-    glGenBuffers(1, &camera_ubo);
-    glBindBuffer(GL_UNIFORM_BUFFER, camera_ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3, nullptr, GL_STATIC_DRAW);
-
-    //Bind UBO
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, camera_ubo);
-
-    //Create camera matrices
-    camera_direction = glm::vec3(0.0f, 0.0f, -1.0f);
-    camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
-    camera_right = glm::normalize(glm::cross(camera_direction, glm::vec3(0.0f, 1.0f, 0.0f)));
-
-    camera_view_matrix = glm::lookAt(
-            camera_position, 
-            camera_position + camera_direction, 
-            glm::vec3(0.0f, 1.0f, 0.0f));
-    camera_projection_matrix = glm::perspective(
-            camera_fov, 
-            camera_aspect_ratio, 
-            camera_near_clip, 
-            camera_far_clip);
-    camera_pv_matrix = camera_projection_matrix * camera_view_matrix;
-
-    //Rebind UBO
-    glBindBuffer(GL_UNIFORM_BUFFER, camera_ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 3, &camera_pv_matrix, GL_STATIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, camera_ubo);
-}
-
 void OpenGLRenderer::sigterm() {
     running = false;
     shutdown();
@@ -132,14 +121,28 @@ void OpenGLRenderer::run() {
 
     bool mouse_captured = false;
 
+    DirectionalLight* light = new DirectionalLight(glm::vec3(0.3f, -1.0f, 0.3f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+    light->bind();
+    //TODO: add point light
+
     AxisWidget* axis_widget = new AxisWidget();
-    Cube* cube = new Cube();
+    Cube* cube = new Cube(glm::vec3(0.5f, 0.5f, 0.1f));
     cube->translate(glm::vec3(0.0f, 0.0f, 4.0f));
+
+    WorldGrid* worldgrid = new WorldGrid(1.0f, 10);
+
+    glm::vec3 camera_initial_position = glm::vec3(0.0f, 0.0f, -4.0f);
+    glm::vec3 camera_initial_direction = glm::vec3(0.0f, 0.0f, 1.0f);
 
     shader = new Shader("./resources/vert.glsl", "./resources/frag.glsl");
     camera = new Camera(1366, 768);
+    camera->set_position(camera_initial_position);
+    camera->set_direction(camera_initial_direction);
 
     float delta_time = 0.0f;
+
+    //Set depth testing
+    glEnable(GL_DEPTH_TEST);
 
     while(running) {
         float frame_start = SDL_GetTicks();
@@ -173,6 +176,8 @@ void OpenGLRenderer::run() {
                         mouse_captured = false;
                         SDL_SetRelativeMouseMode(SDL_FALSE);
                         camera = new Camera(1366, 768);
+                        camera->set_position(camera_initial_position);
+                        camera->set_direction(camera_initial_direction);
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
@@ -193,6 +198,14 @@ void OpenGLRenderer::run() {
                     }
                     camera->rotate(event.motion.xrel, event.motion.yrel);
                     break;
+
+                //Window focus
+                case SDL_WINDOWEVENT:
+                    if(event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+                        mouse_captured = false;
+                        SDL_SetRelativeMouseMode(SDL_FALSE);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -208,16 +221,16 @@ void OpenGLRenderer::run() {
         glm::vec3 camera_velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
         if(is_keydown(SDL_SCANCODE_W)) {
-            camera_velocity += camera->direction;
+            camera_velocity += camera->get_direction();
         } 
         if(is_keydown(SDL_SCANCODE_S)) {
-            camera_velocity -= camera->direction;
+            camera_velocity -= camera->get_direction();
         } 
         if(is_keydown(SDL_SCANCODE_A)) {
-            camera_velocity -= camera->right;
+            camera_velocity -= camera->get_right();
         } 
         if(is_keydown(SDL_SCANCODE_D)) {
-            camera_velocity += camera->right;
+            camera_velocity += camera->get_right();
         }
         if(is_keydown(SDL_SCANCODE_SPACE)) {
             camera_velocity += glm::vec3(0.0f, 1.0f, 0.0f);
@@ -228,6 +241,9 @@ void OpenGLRenderer::run() {
         
         if(glm::length(camera_velocity) > 0.0f) {
             camera_velocity = glm::normalize(camera_velocity)  * delta_time;
+            if(is_keydown(SDL_SCANCODE_LSHIFT)) {
+                camera_velocity *= 2.0f;
+            }
             camera->translate(camera_velocity);
         }
 
@@ -239,29 +255,30 @@ void OpenGLRenderer::run() {
 
         ImGui::NewFrame();
 
-        ImGui::Begin("Debug");
+        ImGui::Begin("Tools");
 
-        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        ImGui::Text("Delta: %f", delta_time);
-        ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));
-        ImGui::Text("OpenGL Vendor: %s", glGetString(GL_VENDOR));
-        ImGui::Text("SDL Version: %d.%d.%d", version.major, version.minor, version.patch);
+        if(ImGui::CollapsingHeader("Debug Info")) {
+            ImGui::Text("Phosphor Engine");
+            ImGui::Text("Version: 0.0.1");
+            ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+            ImGui::Text("Delta: %f", delta_time);
+            ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));
+            ImGui::Text("OpenGL Vendor: %s", glGetString(GL_VENDOR));
+            ImGui::Text("SDL Version: %d.%d.%d", version.major, version.minor, version.patch);
+        }
 
-        ImGui::Text("X-axis: %f", get_axis(SDL_SCANCODE_A, SDL_SCANCODE_D));
-        ImGui::Text("Z-axis: %f", get_axis(SDL_SCANCODE_W, SDL_SCANCODE_S));
- 
         if(ImGui::CollapsingHeader("Camera Info")) {
             ImGui::BeginChild("camera scroll");
 
             ImGui::Text("Camera Velocity: (%f, %f, %f)", camera_velocity.x, camera_velocity.y, camera_velocity.z);
 
-            glm::vec3 position = camera->position;
+            glm::vec3 position = camera->get_position();
             ImGui::Text("Camera Position: (%f, %f, %f)", position.x, position.y, position.z);
 
-            glm::vec3 direction = camera->direction;
+            glm::vec3 direction = camera->get_direction();
             ImGui::Text("Camera Direction: (%f, %f, %f)", direction.x, direction.y, direction.z);
 
-            glm::vec3 right = camera->right;
+            glm::vec3 right = camera->get_right();
             ImGui::Text("Camera Right: (%f, %f, %f)", right.x, right.y, right.z);
 
             glm::vec3 up = camera->up;
@@ -272,6 +289,18 @@ void OpenGLRenderer::run() {
 
             float angle_y = camera->angle_y;
             ImGui::Text("Camera Angle Y: %f", angle_y);
+
+            float fov = camera->cameraData.cam_fov;
+            ImGui::Text("Camera FOV: %f", fov);
+
+            float aspect_ratio = camera->cameraData.cam_aspect_ratio;
+            ImGui::Text("Camera Aspect Ratio: %f", aspect_ratio);
+
+            float near_clip = camera->cameraData.cam_near_clip;
+            ImGui::Text("Camera Near Clip: %f", near_clip);
+
+            float far_clip = camera->cameraData.cam_far_clip;
+            ImGui::Text("Camera Far Clip: %f", far_clip);
 
             if(ImGui::CollapsingHeader("Camera Matrices")) {
                 ImGui::Text("View Matrix");
@@ -295,6 +324,11 @@ void OpenGLRenderer::run() {
 
             ImGui::EndChild();
         } //Camera Info
+        
+        if(ImGui::CollapsingHeader("Input")) {
+            ImGui::Text("Mouse Capture: %s", mouse_captured ? "true" : "false");
+            ImGui::Text("Mouse Position: (%d, %d)", get_mouse_position().x, get_mouse_position().y);
+        }
 
         ImGui::End();
 
@@ -302,9 +336,13 @@ void OpenGLRenderer::run() {
 
         glViewport(0, 0, 1366, 768);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //TODO: gridlines
 
         axis_widget->render();
+
+        worldgrid->render();
 
         shader->use();
         cube->render();

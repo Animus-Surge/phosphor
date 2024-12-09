@@ -18,7 +18,5 @@ bool is_mousedown(int button);
 float get_axis(SDL_Scancode positive, SDL_Scancode negative);
 
 //Mouse position
-int get_mouse_x();
-int get_mouse_y();
-
+SDL_Point get_mouse_position();
 

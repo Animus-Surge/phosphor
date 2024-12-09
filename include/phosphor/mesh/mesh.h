@@ -5,8 +5,16 @@
  * Base mesh class
  */
 
+#include <vector>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+struct Vertex {
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec3 color;
+};
 
 class Mesh {
 protected:
@@ -34,6 +42,9 @@ protected:
      * Transform matrix
      */
     glm::mat4 transform = glm::mat4(1.0f);
+
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
     
 public:
     /**

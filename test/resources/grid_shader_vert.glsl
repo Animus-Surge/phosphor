@@ -1,9 +1,12 @@
 #version 430 core
 
+// Phosphor Test - grid_shader_vert.glsl
+// Grid vertex shader
+
 layout(binding = 0) uniform Transform {
     mat4 transform;
 };
-layout(binding = 1) uniform Camera {
+layout(binding = 1) uniform CameraData {
     mat4 view_matrix;
     mat4 projection_matrix;
     mat4 pv_matrix;
@@ -17,13 +20,16 @@ layout(binding = 1) uniform Camera {
     float cam_far_clip;
 };
 
-layout(location = 0) in vec3 vert_pos;
-layout(location = 1) in vec3 vert_color;
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec3 aColor;
 
-out vec3 frag_color;
+out vec3 fragColor;
 
 void main()
 {
-    gl_Position = pv_matrix * (transform * vec4(vert_pos, 1.0));
-    frag_color = vert_color;
+    gl_Position = pv_matrix * transform * vec4(aPos, 1.0);
+    fragColor = aColor;
 }
+
+//EOF

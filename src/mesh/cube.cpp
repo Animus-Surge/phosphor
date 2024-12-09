@@ -8,59 +8,84 @@
 
 #include "phosphor/mesh/cube.h"
 
-Cube::Cube() {
-    //Generate cube vertices
-    //TODO: global space coordinate input
+Cube::Cube(glm::vec3 color) {
 
-    glm::vec3 vertices[] = {
-        glm::vec3(-0.5f, -0.5f, -0.5f),
-        glm::vec3( 0.5f, -0.5f, -0.5f),
-        glm::vec3( 0.5f,  0.5f, -0.5f),
-        glm::vec3(-0.5f,  0.5f, -0.5f),
-        glm::vec3(-0.5f, -0.5f,  0.5f),
-        glm::vec3( 0.5f, -0.5f,  0.5f),
-        glm::vec3( 0.5f,  0.5f,  0.5f),
-        glm::vec3(-0.5f,  0.5f,  0.5f)
+    //Generate vertices
+    this->vertices = {
+        //Front face
+        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(0.0, 0.0, -1.0), color },
+        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(0.0, 0.0, -1.0), color },
+        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(0.0, 0.0, -1.0), color },
+        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(0.0, 0.0, -1.0), color },
+
+        //Right face
+        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(1.0, 0.0, 0.0), color },
+        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(1.0, 0.0, 0.0), color },
+        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 0.0, 0.0), color },
+        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(1.0, 0.0, 0.0), color },
+
+        //Top face
+        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(0.0, 1.0, 0.0), color },
+        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(0.0, 1.0, 0.0), color },
+        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(0.0, 1.0, 0.0), color },
+        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(0.0, 1.0, 0.0), color },
+
+        //Back face
+        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(0.0, 0.0, 1.0), color },
+        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(0.0, 0.0, 1.0), color },
+        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(0.0, 0.0, 1.0), color },
+        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(0.0, 0.0, 1.0), color },
+
+        //Left face
+        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(-1.0, 0.0, 0.0), color },
+        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(-1.0, 0.0, 0.0), color },
+        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(-1.0, 0.0, 0.0), color },
+        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(-1.0, 0.0, 0.0), color },
+
+        //Bottom face
+        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(0.0, -1.0, 0.0), color },
+        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(0.0, -1.0, 0.0), color },
+        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(0.0, -1.0, 0.0), color },
+        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(0.0, -1.0, 0.0), color }
     };
 
-    //Generate cube indices
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0,
-        1, 5, 6,
-        6, 2, 1,
-        7, 6, 5,
-        5, 4, 7,
-        4, 0, 3,
-        3, 7, 4,
-        4, 5, 1,
-        1, 0, 4,
-        3, 2, 6,
-        6, 7, 3
+    this->indices = {
+        0, 1, 2, 2, 3, 0, //Front face
+        4, 5, 6, 6, 7, 4, //Back face
+        8, 9, 10, 10, 11, 8, //Top face
+        12, 13, 14, 14, 15, 12, //Bottom face
+        16, 17, 18, 18, 19, 16, //Right face
+        20, 21, 22, 22, 23, 20 //Left face
     };
-    
-    //Generate and bind VAO
+
+    //Generate vertex array object
     glGenVertexArrays(1, &this->vertex_array);
     glBindVertexArray(this->vertex_array);
 
-    //Generate and bind VBO
+    //Generate vertex buffer object
     glGenBuffers(1, &this->vertex_buffer_id);
     glBindBuffer(GL_ARRAY_BUFFER, this->vertex_buffer_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), this->vertices.data(), GL_STATIC_DRAW);
 
-    //Generate and bind IBO
+    //Generate index buffer object
     glGenBuffers(1, &this->index_buffer_id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->index_buffer_id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), this->indices.data(), GL_STATIC_DRAW);
 
-    //Set vertex attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    //Uniform buffer
+    //Generate uniform buffer object
     glGenBuffers(1, &this->uniform_buffer_id);
     glBindBuffer(GL_UNIFORM_BUFFER, this->uniform_buffer_id);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), &this->transform, GL_DYNAMIC_DRAW);
+
+    //Set up vertex attributes
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+    glEnableVertexAttribArray(2);
+
+    glBindVertexArray(0);
 }
 
 Cube::~Cube() {
