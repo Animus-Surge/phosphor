@@ -10,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <spdlog/spdlog.h>
 
-#include "phosphor/camera.h"
+#include "phosphor/camera.hpp"
 
 //TODO: input event handler, componentize
 
@@ -39,7 +39,7 @@ void Camera::regen_buffers() {
     glBufferData(GL_UNIFORM_BUFFER, sizeof(CameraUniform), &this->cameraData, GL_STATIC_DRAW);
 
     //Rebind UBO
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, this->cam_ubo);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 2, this->cam_ubo);
 }
 
 Camera::Camera(int aspect_width, int aspect_height) { //TODO: add arguments
@@ -52,8 +52,12 @@ Camera::Camera(int aspect_width, int aspect_height) { //TODO: add arguments
     this->cameraData.cam_right = glm::normalize(glm::cross(this->cameraData.cam_direction, glm::vec3(0.0f, 1.0f, 0.0f)));
 
     //Generate initial angle values
-    this->angle_x = atan2(this->cameraData.cam_direction.z, this->cameraData.cam_direction.x);
-    this->angle_y = asin(this->cameraData.cam_direction.y);
+    float pitch = -asin(this->cameraData.cam_direction.y);
+    float yaw = atan2(this->cameraData.cam_direction.x, this->cameraData.cam_direction.z);
+    
+    this->angle_x = yaw;
+    this->angle_y = pitch;
+
 
     //Create matrices
     this->generate_view_matrix();

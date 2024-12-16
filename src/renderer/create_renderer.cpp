@@ -3,8 +3,8 @@
  * Renderer factory implementation
  */
 
-#include "phosphor/renderer.h"
-#include "phosphor/backends/opengl_renderer.h"
+#include "phosphor/renderer.hpp"
+#include "phosphor/backends/opengl_renderer.hpp"
 
 std::unique_ptr<Renderer> create_renderer(int type) {
     switch (type) {

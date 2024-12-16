@@ -5,7 +5,7 @@
  * OpenGL renderer system
  */
 
-#include "phosphor/renderer.h"
+#include "phosphor/renderer.hpp"
 
 class OpenGLRenderer : public Renderer {
 protected:

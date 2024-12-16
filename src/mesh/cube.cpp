@@ -6,47 +6,49 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "phosphor/mesh/cube.h"
+#include "phosphor/mesh/cube.hpp"
 
-Cube::Cube(glm::vec3 color) {
+Cube::Cube() {
+
+    this->material = new Material(); //TODO: add material constructor with data
 
     //Generate vertices
     this->vertices = {
         //Front face
-        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(0.0, 0.0, -1.0), color },
-        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(0.0, 0.0, -1.0), color },
-        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(0.0, 0.0, -1.0), color },
-        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(0.0, 0.0, -1.0), color },
+        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(0.0, 0.0, -1.0)},
+        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(0.0, 0.0, -1.0)},
+        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(0.0, 0.0, -1.0)},
+        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(0.0, 0.0, -1.0)},
 
         //Right face
-        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(1.0, 0.0, 0.0), color },
-        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(1.0, 0.0, 0.0), color },
-        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 0.0, 0.0), color },
-        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(1.0, 0.0, 0.0), color },
+        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(1.0, 0.0, 0.0)},
+        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(1.0, 0.0, 0.0)},
+        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 0.0, 0.0)},
+        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(1.0, 0.0, 0.0)},
 
         //Top face
-        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(0.0, 1.0, 0.0), color },
-        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(0.0, 1.0, 0.0), color },
-        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(0.0, 1.0, 0.0), color },
-        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(0.0, 1.0, 0.0), color },
+        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(0.0, 1.0, 0.0)},
+        { glm::vec3(0.5, 0.5, -0.5), glm::vec3(0.0, 1.0, 0.0)},
+        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(0.0, 1.0, 0.0)},
+        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(0.0, 1.0, 0.0)},
 
         //Back face
-        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(0.0, 0.0, 1.0), color },
-        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(0.0, 0.0, 1.0), color },
-        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(0.0, 0.0, 1.0), color },
-        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(0.0, 0.0, 1.0), color },
+        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(0.0, 0.0, 1.0)},
+        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(0.0, 0.0, 1.0)},
+        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(0.0, 0.0, 1.0)},
+        { glm::vec3(0.5, 0.5, 0.5), glm::vec3(0.0, 0.0, 1.0)},
 
         //Left face
-        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(-1.0, 0.0, 0.0), color },
-        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(-1.0, 0.0, 0.0), color },
-        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(-1.0, 0.0, 0.0), color },
-        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(-1.0, 0.0, 0.0), color },
+        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(-1.0, 0.0, 0.0)},
+        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(-1.0, 0.0, 0.0)},
+        { glm::vec3(-0.5, 0.5, -0.5), glm::vec3(-1.0, 0.0, 0.0)},
+        { glm::vec3(-0.5, 0.5, 0.5), glm::vec3(-1.0, 0.0, 0.0)},
 
         //Bottom face
-        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(0.0, -1.0, 0.0), color },
-        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(0.0, -1.0, 0.0), color },
-        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(0.0, -1.0, 0.0), color },
-        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(0.0, -1.0, 0.0), color }
+        { glm::vec3(-0.5, -0.5, 0.5), glm::vec3(0.0, -1.0, 0.0)},
+        { glm::vec3(0.5, -0.5, 0.5), glm::vec3(0.0, -1.0, 0.0)},
+        { glm::vec3(0.5, -0.5, -0.5), glm::vec3(0.0, -1.0, 0.0)},
+        { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(0.0, -1.0, 0.0)}
     };
 
     this->indices = {
@@ -82,8 +84,6 @@ Cube::Cube(glm::vec3 color) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
-    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 }
@@ -98,6 +98,7 @@ Cube::~Cube() {
 
 void Cube::render() {
     glBindVertexArray(this->vertex_array);
+    this->material->bind();
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, this->uniform_buffer_id);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

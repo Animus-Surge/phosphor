@@ -7,14 +7,14 @@
 
 #include <glm/glm.hpp>
 
-#include "phosphor/mesh/mesh.h"
+#include "phosphor/mesh/mesh.hpp"
 
 class Cube : public Mesh {
 public:
     /**
      * Constructor
      */
-    Cube(glm::vec3 color);
+    Cube();
 
     /**
      * Destructor

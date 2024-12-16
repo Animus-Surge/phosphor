@@ -20,7 +20,7 @@
 
 #include <string>
 
-#include "phosphor/renderer.h"
+#include "phosphor/renderer.hpp"
 
 // Entry point
 

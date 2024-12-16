@@ -9,7 +9,7 @@
 
 #include "spdlog/spdlog.h"
 
-#include "phosphor/phosphor.h"
+#include "phosphor/phosphor.hpp"
 
 std::unique_ptr<Renderer> renderer;
 

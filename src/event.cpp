@@ -5,7 +5,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "phosphor/event.h"
+#include "phosphor/event.hpp"
 
 bool keystates[SDL_NUM_SCANCODES];
 bool mousestates[8];

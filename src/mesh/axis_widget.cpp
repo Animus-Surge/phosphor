@@ -6,10 +6,10 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "phosphor/mesh/axis_widget.h"
+#include "phosphor/mesh/axis_widget.hpp"
 
 AxisWidget::AxisWidget() {
-    this->axis_shader = new Shader("resources/axis_widget_vert.glsl", "resources/axis_widget_frag.glsl");
+    this->axis_shader = new Shader(axis_vert, axis_frag, false);
 
     float vertices[] = {
     //  Position            Color

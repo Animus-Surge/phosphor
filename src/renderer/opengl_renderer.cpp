@@ -11,46 +11,24 @@
 #include "imgui_impl_opengl3.h"
 #include "spdlog/spdlog.h"
 
-#include "phosphor/event.h"
-#include "phosphor/mesh/axis_widget.h"
-#include "phosphor/mesh/cube.h"
-#include "phosphor/mesh/worldgrid.h"
-#include "phosphor/renderer.h"
-#include "phosphor/light/directional.h"
-#include "phosphor/backends/opengl_renderer.h"
-#include "phosphor/shader.h"
-#include "phosphor/camera.h"
+#include "phosphor/event.hpp"
+#include "phosphor/mesh/axis_widget.hpp"
+#include "phosphor/mesh/cube.hpp"
+#include "phosphor/renderer.hpp"
+#include "phosphor/backends/opengl_renderer.hpp"
+#include "phosphor/shader.hpp"
+#include "phosphor/camera.hpp"
 
 bool running = true;
-Shader* shader;
+
 Camera* camera;
+Shader* shader;
 
-//Camera variables
-unsigned int camera_ubo;
+AxisWidget* axis;
 
-glm::mat4 camera_view_matrix;
-glm::mat4 camera_projection_matrix;
-glm::mat4 camera_pv_matrix;
+Mesh* test_mesh;
 
-float camera_fov = 45.0f;
-float camera_aspect_ratio = 1366.0f/768.0f;
-float camera_near_clip = 0.1f;
-float camera_far_clip = 100.0f;
-float camera_angle_x = M_PI;
-float camera_angle_y = 0.0f;
-
-glm::vec3 camera_position = glm::vec3(0.0f, 0.0f, 4.0f);
-glm::vec3 camera_direction;
-glm::vec3 camera_right;
-glm::vec3 camera_up;
-
-void GLAPIENTRY message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* user_param) {
-    if(severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
-        return;
-    }
-
-    spdlog::error("OpenGL error: {}", message);
-}
+//TODO: OpenGL debug callback
 
 void OpenGLRenderer::init() {
     spdlog::info("Creating OpenGL Renderer...");
@@ -94,7 +72,7 @@ void OpenGLRenderer::init() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
-    
+
     ImGui_ImplSDL2_InitForOpenGL(this->window, this->context);
     ImGui_ImplOpenGL3_Init("#version 330");
 } // OpenGLRenderer::init
@@ -114,30 +92,116 @@ void OpenGLRenderer::sigterm() {
     shutdown();
 }
 
+void render_debug_modal(float delta_time, glm::vec3 camera_velocity, bool mouse_captured) {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+
+    ImGui::NewFrame();
+
+    ImGui::Begin("Tools");
+
+    //Get version
+    SDL_version version;
+    SDL_GetVersion(&version);
+
+    if(ImGui::CollapsingHeader("Debug Info")) {
+        ImGui::Text("Phosphor Engine");
+        ImGui::Text("Version: 0.0.1");
+        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+        ImGui::Text("Delta: %f", delta_time);
+        ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));
+        ImGui::Text("OpenGL Vendor: %s", glGetString(GL_VENDOR));
+        ImGui::Text("SDL Version: %d.%d.%d", version.major, version.minor, version.patch);
+    }
+
+    if(ImGui::CollapsingHeader("Camera Info")) {
+        ImGui::BeginChild("camera scroll");
+
+        ImGui::Text("Camera Velocity: (%f, %f, %f)", camera_velocity.x, camera_velocity.y, camera_velocity.z);
+
+        glm::vec3 position = camera->get_position();
+        ImGui::Text("Camera Position: (%f, %f, %f)", position.x, position.y, position.z);
+
+        glm::vec3 direction = camera->get_direction();
+        ImGui::Text("Camera Direction: (%f, %f, %f)", direction.x, direction.y, direction.z);
+
+        glm::vec3 right = camera->get_right();
+        ImGui::Text("Camera Right: (%f, %f, %f)", right.x, right.y, right.z);
+
+        glm::vec3 up = camera->up;
+        ImGui::Text("Camera Up: (%f, %f, %f)", up.x, up.y, up.z);
+
+        float angle_x = camera->angle_x;
+        ImGui::Text("Camera Angle X: %f", angle_x);
+
+        float angle_y = camera->angle_y;
+        ImGui::Text("Camera Angle Y: %f", angle_y);
+
+        float fov = camera->cameraData.cam_fov;
+        ImGui::Text("Camera FOV: %f", fov);
+
+        float aspect_ratio = camera->cameraData.cam_aspect_ratio;
+        ImGui::Text("Camera Aspect Ratio: %f", aspect_ratio);
+
+        float near_clip = camera->cameraData.cam_near_clip;
+        ImGui::Text("Camera Near Clip: %f", near_clip);
+
+        float far_clip = camera->cameraData.cam_far_clip;
+        ImGui::Text("Camera Far Clip: %f", far_clip);
+
+        if(ImGui::CollapsingHeader("Camera Matrices")) {
+            ImGui::Text("View Matrix");
+            glm::mat4 view_matrix = camera->get_view_matrix();
+            for(int i = 0; i < 4; i++) {
+                ImGui::Text("%f %f %f %f", view_matrix[i][0], view_matrix[i][1], view_matrix[i][2], view_matrix[i][3]);
+            }
+
+            ImGui::Text("Projection Matrix");
+            glm::mat4 projection_matrix = camera->get_projection_matrix();
+            for(int i = 0; i < 4; i++) {
+                ImGui::Text("%f %f %f %f", projection_matrix[i][0], projection_matrix[i][1], projection_matrix[i][2], projection_matrix[i][3]);
+            }
+
+            ImGui::Text("PV Matrix");
+            glm::mat4 pv_matrix = camera->get_pv_matrix();
+            for(int i = 0; i < 4; i++) {
+                ImGui::Text("%f %f %f %f", pv_matrix[i][0], pv_matrix[i][1], pv_matrix[i][2], pv_matrix[i][3]);
+            }
+        } //Camera Matrices
+
+        ImGui::EndChild();
+    } //Camera Info
+    
+    if(ImGui::CollapsingHeader("Input")) {
+        ImGui::Text("Mouse Capture: %s", mouse_captured ? "true" : "false");
+        ImGui::Text("Mouse Position: (%d, %d)", get_mouse_position().x, get_mouse_position().y);
+    }
+
+    ImGui::End();
+
+    ImGui::Render();
+
+}
+
 void OpenGLRenderer::run() {
-    //TODO: add a debug reset keybind
-    //TODO: event controller
     SDL_Event event;
 
     bool mouse_captured = false;
 
-    DirectionalLight* light = new DirectionalLight(glm::vec3(0.3f, -1.0f, 0.3f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
-    light->bind();
-    //TODO: add point light
+    //Lights
 
-    AxisWidget* axis_widget = new AxisWidget();
-    Cube* cube = new Cube(glm::vec3(0.5f, 0.5f, 0.1f));
-    cube->translate(glm::vec3(0.0f, 0.0f, 4.0f));
+    //Engine-specific widgets
+    axis = new AxisWidget();
 
-    WorldGrid* worldgrid = new WorldGrid(1.0f, 10);
+    test_mesh = new Cube();
+    test_mesh->translate(glm::vec3(0.0f, 0.0f, 4.0f));
 
     glm::vec3 camera_initial_position = glm::vec3(0.0f, 0.0f, -4.0f);
-    glm::vec3 camera_initial_direction = glm::vec3(0.0f, 0.0f, 1.0f);
 
+    //Camera and mesh shader (TODO: move mesh shader to mesh class instead)
     shader = new Shader("./resources/vert.glsl", "./resources/frag.glsl");
     camera = new Camera(1366, 768);
     camera->set_position(camera_initial_position);
-    camera->set_direction(camera_initial_direction);
 
     float delta_time = 0.0f;
 
@@ -172,12 +236,11 @@ void OpenGLRenderer::run() {
                     }
 
                     if(event.key.keysym.sym == SDLK_r) { //reset
-                        //Reset camera
+                                                         //Reset camera
                         mouse_captured = false;
                         SDL_SetRelativeMouseMode(SDL_FALSE);
                         camera = new Camera(1366, 768);
                         camera->set_position(camera_initial_position);
-                        camera->set_direction(camera_initial_direction);
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
@@ -191,7 +254,7 @@ void OpenGLRenderer::run() {
                     }
                     break;
 
-                //Mouse motion
+                    //Mouse motion
                 case SDL_MOUSEMOTION: 
                     if(!mouse_captured) { //Ignore mouse motion if not captured
                         break;
@@ -199,7 +262,7 @@ void OpenGLRenderer::run() {
                     camera->rotate(event.motion.xrel, event.motion.yrel);
                     break;
 
-                //Window focus
+                    //Window focus
                 case SDL_WINDOWEVENT:
                     if(event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
                         mouse_captured = false;
@@ -212,6 +275,7 @@ void OpenGLRenderer::run() {
 
             handle_events(event);
         } //if(SDL_PollEvent(&event)) -- Event loop
+        
         //Lock cursor to center
         if(mouse_captured) {
             SDL_WarpMouseInWindow(this->window, 1366 / 2, 768 / 2);
@@ -238,7 +302,7 @@ void OpenGLRenderer::run() {
         if(is_keydown(SDL_SCANCODE_LCTRL)) {
             camera_velocity -= glm::vec3(0.0f, 1.0f, 0.0f);
         }
-        
+
         if(glm::length(camera_velocity) > 0.0f) {
             camera_velocity = glm::normalize(camera_velocity)  * delta_time;
             if(is_keydown(SDL_SCANCODE_LSHIFT)) {
@@ -247,92 +311,7 @@ void OpenGLRenderer::run() {
             camera->translate(camera_velocity);
         }
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-
-        SDL_version version;
-        SDL_GetVersion(&version);
-
-        ImGui::NewFrame();
-
-        ImGui::Begin("Tools");
-
-        if(ImGui::CollapsingHeader("Debug Info")) {
-            ImGui::Text("Phosphor Engine");
-            ImGui::Text("Version: 0.0.1");
-            ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-            ImGui::Text("Delta: %f", delta_time);
-            ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION));
-            ImGui::Text("OpenGL Vendor: %s", glGetString(GL_VENDOR));
-            ImGui::Text("SDL Version: %d.%d.%d", version.major, version.minor, version.patch);
-        }
-
-        if(ImGui::CollapsingHeader("Camera Info")) {
-            ImGui::BeginChild("camera scroll");
-
-            ImGui::Text("Camera Velocity: (%f, %f, %f)", camera_velocity.x, camera_velocity.y, camera_velocity.z);
-
-            glm::vec3 position = camera->get_position();
-            ImGui::Text("Camera Position: (%f, %f, %f)", position.x, position.y, position.z);
-
-            glm::vec3 direction = camera->get_direction();
-            ImGui::Text("Camera Direction: (%f, %f, %f)", direction.x, direction.y, direction.z);
-
-            glm::vec3 right = camera->get_right();
-            ImGui::Text("Camera Right: (%f, %f, %f)", right.x, right.y, right.z);
-
-            glm::vec3 up = camera->up;
-            ImGui::Text("Camera Up: (%f, %f, %f)", up.x, up.y, up.z);
-
-            float angle_x = camera->angle_x;
-            ImGui::Text("Camera Angle X: %f", angle_x);
-
-            float angle_y = camera->angle_y;
-            ImGui::Text("Camera Angle Y: %f", angle_y);
-
-            float fov = camera->cameraData.cam_fov;
-            ImGui::Text("Camera FOV: %f", fov);
-
-            float aspect_ratio = camera->cameraData.cam_aspect_ratio;
-            ImGui::Text("Camera Aspect Ratio: %f", aspect_ratio);
-
-            float near_clip = camera->cameraData.cam_near_clip;
-            ImGui::Text("Camera Near Clip: %f", near_clip);
-
-            float far_clip = camera->cameraData.cam_far_clip;
-            ImGui::Text("Camera Far Clip: %f", far_clip);
-
-            if(ImGui::CollapsingHeader("Camera Matrices")) {
-                ImGui::Text("View Matrix");
-                glm::mat4 view_matrix = camera->get_view_matrix();
-                for(int i = 0; i < 4; i++) {
-                    ImGui::Text("%f %f %f %f", view_matrix[i][0], view_matrix[i][1], view_matrix[i][2], view_matrix[i][3]);
-                }
-
-                ImGui::Text("Projection Matrix");
-                glm::mat4 projection_matrix = camera->get_projection_matrix();
-                for(int i = 0; i < 4; i++) {
-                    ImGui::Text("%f %f %f %f", projection_matrix[i][0], projection_matrix[i][1], projection_matrix[i][2], projection_matrix[i][3]);
-                }
-
-                ImGui::Text("PV Matrix");
-                glm::mat4 pv_matrix = camera->get_pv_matrix();
-                for(int i = 0; i < 4; i++) {
-                    ImGui::Text("%f %f %f %f", pv_matrix[i][0], pv_matrix[i][1], pv_matrix[i][2], pv_matrix[i][3]);
-                }
-            } //Camera Matrices
-
-            ImGui::EndChild();
-        } //Camera Info
-        
-        if(ImGui::CollapsingHeader("Input")) {
-            ImGui::Text("Mouse Capture: %s", mouse_captured ? "true" : "false");
-            ImGui::Text("Mouse Position: (%d, %d)", get_mouse_position().x, get_mouse_position().y);
-        }
-
-        ImGui::End();
-
-        ImGui::Render();
+        render_debug_modal(delta_time, camera_velocity, mouse_captured); //Render ImGui debug modal
 
         glViewport(0, 0, 1366, 768);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -340,12 +319,10 @@ void OpenGLRenderer::run() {
 
         //TODO: gridlines
 
-        axis_widget->render();
-
-        worldgrid->render();
+        axis->render();
 
         shader->use();
-        cube->render();
+        test_mesh->render();
         shader->drop();
 
         //Render ImGui
@@ -356,7 +333,7 @@ void OpenGLRenderer::run() {
         //Timing
         float frame_end = SDL_GetTicks();
         delta_time = (frame_end - frame_start) / 1000.0f;
-        
+
     } //while(running) -- Main loop
 
 } // OpenGLRenderer::run

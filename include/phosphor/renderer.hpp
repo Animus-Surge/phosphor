@@ -19,7 +19,7 @@ public:
     virtual void shutdown() = 0;
     virtual void run() = 0;
 
-    // Signal handler
+    // Signal handler (TODO: replace with generic handler)
     virtual void sigterm() = 0;
 }; // class Renderer
 
