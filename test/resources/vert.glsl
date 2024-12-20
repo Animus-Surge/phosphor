@@ -1,4 +1,4 @@
-#version 430 core
+#version 450 core
 
 layout(binding = 0) uniform Transform {
     mat4 transform;
@@ -24,10 +24,12 @@ layout(location = 1) in vec3 aNormal;
 
 out vec3 normal;
 out vec3 viewDir;
+out vec3 fragPos;
 
 void main()
 {
     gl_Position = pv_matrix * transform * vec4(aPos, 1.0);
     normal = mat3(transpose(inverse(transform))) * aNormal;
-    viewDir = (inverse(pv_matrix) * vec4(0.0, 0.0, 0.0, 1.0)).xyz - aPos;
+    viewDir = cam_position - vec3(transform * vec4(aPos, 1.0));
+    fragPos = vec3(transform * vec4(aPos, 1.0));
 }

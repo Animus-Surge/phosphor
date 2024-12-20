@@ -16,6 +16,8 @@ project(phosphor
     LANGUAGES CXX
 )
 
+#TODO: vulkan SDK
+
 #FetchContent
 include(FetchContent)
 
@@ -62,6 +64,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(imgui)
 
+#Vulkan
+set(VULKAN_SDK_PATH ${CMAKE_SOURCE_DIR}/external/vulkan)
+set(VULKAN_LIBRARY ${VULKAN_SDK_PATH}/x86_64/lib/libvulkan.so)
+set(VULKAN_INCLUDE_DIR ${VULKAN_SDK_PATH}/x86_64/include)
+
+
 #spdlog - Logging
 #set(SPDLOG_FMT_EXTERNAL ON)
 set(SPDLOG_BUILD_EXAMPLE OFF)
@@ -98,6 +106,7 @@ include_directories(
     ${SDL2_IMAGE_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
+    ${VULKAN_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/external/nlohmann_json/include
     ${imgui_SOURCE_DIR}
     ${imgui_SOURCE_DIR}/backends
@@ -110,6 +119,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE ${SDL2_IMAGE_LIBRARIES}
     PRIVATE ${OPENGL_LIBRARIES}
     PRIVATE ${GLEW_LIBRARIES}
+    PRIVATE ${VULKAN_LIBRARY}
     PRIVATE nlohmann_json::nlohmann_json
     PRIVATE glm::glm
     PRIVATE imgui_shared

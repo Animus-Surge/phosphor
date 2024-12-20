@@ -3,6 +3,8 @@
  * OpenGL renderer implementation
  */
 
+#include <string>
+
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -14,6 +16,7 @@
 #include "phosphor/event.hpp"
 #include "phosphor/mesh/axis_widget.hpp"
 #include "phosphor/mesh/cube.hpp"
+#include "phosphor/light/point_light.hpp"
 #include "phosphor/renderer.hpp"
 #include "phosphor/backends/opengl_renderer.hpp"
 #include "phosphor/shader.hpp"
@@ -171,7 +174,7 @@ void render_debug_modal(float delta_time, glm::vec3 camera_velocity, bool mouse_
 
         ImGui::EndChild();
     } //Camera Info
-    
+
     if(ImGui::CollapsingHeader("Input")) {
         ImGui::Text("Mouse Capture: %s", mouse_captured ? "true" : "false");
         ImGui::Text("Mouse Position: (%d, %d)", get_mouse_position().x, get_mouse_position().y);
@@ -193,6 +196,10 @@ void OpenGLRenderer::run() {
     //Engine-specific widgets
     axis = new AxisWidget();
 
+    PointLight* light = new PointLight();
+    light->set_position(glm::vec3(1.0f, 1.0f, 1.0f));
+    light->gen_ubo();
+
     test_mesh = new Cube();
     test_mesh->translate(glm::vec3(0.0f, 0.0f, 4.0f));
 
@@ -207,6 +214,7 @@ void OpenGLRenderer::run() {
 
     //Set depth testing
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
     while(running) {
         float frame_start = SDL_GetTicks();
@@ -255,7 +263,7 @@ void OpenGLRenderer::run() {
                     break;
 
                     //Mouse motion
-                case SDL_MOUSEMOTION: 
+                case SDL_MOUSEMOTION:
                     if(!mouse_captured) { //Ignore mouse motion if not captured
                         break;
                     }
@@ -275,7 +283,7 @@ void OpenGLRenderer::run() {
 
             handle_events(event);
         } //if(SDL_PollEvent(&event)) -- Event loop
-        
+
         //Lock cursor to center
         if(mouse_captured) {
             SDL_WarpMouseInWindow(this->window, 1366 / 2, 768 / 2);
@@ -286,13 +294,13 @@ void OpenGLRenderer::run() {
 
         if(is_keydown(SDL_SCANCODE_W)) {
             camera_velocity += camera->get_direction();
-        } 
+        }
         if(is_keydown(SDL_SCANCODE_S)) {
             camera_velocity -= camera->get_direction();
-        } 
+        }
         if(is_keydown(SDL_SCANCODE_A)) {
             camera_velocity -= camera->get_right();
-        } 
+        }
         if(is_keydown(SDL_SCANCODE_D)) {
             camera_velocity += camera->get_right();
         }
@@ -318,6 +326,8 @@ void OpenGLRenderer::run() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //TODO: gridlines
+
+        light->render();
 
         axis->render();
 

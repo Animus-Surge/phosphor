@@ -52,12 +52,12 @@ Cube::Cube() {
     };
 
     this->indices = {
-        0, 1, 2, 2, 3, 0, //Front face
-        4, 5, 6, 6, 7, 4, //Back face
-        8, 9, 10, 10, 11, 8, //Top face
-        12, 13, 14, 14, 15, 12, //Bottom face
-        16, 17, 18, 18, 19, 16, //Right face
-        20, 21, 22, 22, 23, 20 //Left face
+        0, 3, 2, 2, 1, 0, //Front face
+        4, 7, 6, 6, 5, 4, //Right face
+        8, 11, 10, 10, 9, 8, //Top face
+        12, 15, 14, 14, 13, 12, //Back face
+        16, 19, 18, 18, 17, 16, //Left face
+        20, 23, 22, 22, 21, 20 //Bottom face
     };
 
     //Generate vertex array object

@@ -70,9 +70,8 @@ public:
      * Render the axis widget
      */
     void render() override;
-    
+
     void regen_ubo() override {
     }
 
-    void set_transform(glm::mat4 transform);
 }; // class AxisWidget
