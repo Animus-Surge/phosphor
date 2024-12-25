@@ -1,6 +1,0 @@
-Uniform buffer index list
-
-0 - Object transform
-1 - Object material
-2 - Camera
-3 - Lighting

@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "vulkan",
+    "sdl2",
+    "spdlog",
+    "imgui",
+    "glm"
+  ]
+}

@@ -6,4 +6,7 @@ build/
 .cache/
 .vscode/
 
-external/vulkan/
+vcpkg_installed/
+
+CMakeUserPresets.json
+CMakePresets.json

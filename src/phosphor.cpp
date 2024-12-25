@@ -1,51 +1,15 @@
 /**
- * Phosphor phosphor.cpp
- *
- * Entry point and initialization for the Phosphor engine
+ * Phosphor src/phosphor.cpp
+ * This file is the main source file for the Phosphor library.
  */
-
-#include <signal.h>
-#include <unistd.h>
-
-#include "spdlog/spdlog.h"
 
 #include "phosphor/phosphor.hpp"
 
-std::unique_ptr<Renderer> renderer;
+#include <spdlog/spdlog.h>
 
-void signal_callback(int signum) {
-    spdlog::info("Received signal {}", signum);
+namespace Phosphor {
 
-    switch(signum) {
-        case SIGINT:
-            spdlog::info("Shutting down"); //TODO
-            renderer->sigterm();
-            renderer->shutdown();
-            exit(0);
-            
-        default:
-            break;
+    void init() {
+        spdlog::info("Hello, World!");
     }
-}
-
-void phosphor_init() {
-    // Register signal handlers
-    signal(SIGINT, signal_callback);
-
-    if(PHOSPHOR_DEBUG) {
-        spdlog::set_level(spdlog::level::debug);
-    } else {
-        spdlog::set_level(spdlog::level::info);
-    }
-
-    spdlog::info("Phosphor version: {}", phosphor_version());
-
-    // Initialize the renderer
-    renderer = create_renderer(0);
-    renderer->init();
-    renderer->run();
-    renderer->shutdown();
-
-    spdlog::info("Phosphor shutting down");
-
-}
+};
