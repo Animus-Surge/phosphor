@@ -1,4 +1,6 @@
 {
+  "name":"phosphor-engine",
+  "version":"0.1.0",
   "dependencies": [
     "vulkan",
     "sdl2",

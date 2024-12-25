@@ -11,7 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/scripts/cmake/")
 
 project(phosphor
-    VERSION 0.1.3
+    VERSION 0.1.0
     DESCRIPTION "An SDL based 2D/3D game engine"
     LANGUAGES CXX)
 

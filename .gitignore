@@ -1,12 +1,18 @@
+#Project
 build/
 *.log
 *.env
 .venv/
 
+#Editor
 .cache/
 .vscode/
+.zed/
+.idea/
 
+#vcpkg
 vcpkg_installed/
 
+#CMake
 CMakeUserPresets.json
-CMakePresets.json
+CMakeFiles/
