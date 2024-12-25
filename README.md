@@ -23,6 +23,11 @@ More to come soon
 
 Phosphor uses CMake as its build system. To build the engine, you will need to have CMake installed on your system. You will also need to have VCPkg installed and set up on your system.
 
+**Requirements**
+- CMake 3.12 or higher
+- Ninja
+- A C++17 compliant compiler (GCC, Clang, MSVC)
+
 ### From Source
 
 1. Clone the repository and submodules
@@ -38,9 +43,9 @@ cd external/vcpkg
 ./bootstrap-vcpkg.sh -disableMetrics
 cd ../..
 ```
-(Note: the `-disableMetrics` flag is optional, I included it because I personally don't like having metrics enabled, but it is entirely up to you)
-(Note: If you are on Windows, you will need to run the bootstrap-vcpkg.bat file instead of the shell script)
-(Note: After the script gets run, ensure the generated `vcpkg` executable is in your PATH)
+- (Note: the `-disableMetrics` flag is optional, I included it because I personally don't like having metrics enabled, but it is entirely up to you)
+- (Note: If you are on Windows, you will need to run the bootstrap-vcpkg.bat file instead of the shell script)
+- (Note: After the script gets run, ensure the generated `vcpkg` executable is in your PATH)
 
 3. Install dependencies
 ```bash
