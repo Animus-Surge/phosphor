@@ -4,6 +4,7 @@
 # Description: An SDL based 2D/3D game engine
 # License: MIT
 
+# Project setup
 cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -14,6 +15,11 @@ project(phosphor
     VERSION 0.1.0
     DESCRIPTION "An SDL based 2D/3D game engine"
     LANGUAGES CXX)
+
+# Variables
+set(PHOSPHOR_BUILD_TESTS ON) # TODO: check if these variables are defined already
+set(PHOSPHOR_BUILD_EDITOR OFF)
+set(PHOSPHOR_BUILD_EXAMPLES OFF) # No examples yet
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -36,7 +42,12 @@ find_package(Vulkan REQUIRED)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
 # Testing project
-add_subdirectory(test)
+if(PHOSPHOR_BUILD_TESTS)
+    add_subdirectory(test)
+endif()
+
+# Editor project
+#TODO
 
 # Linking
 target_include_directories(${PROJECT_NAME} PUBLIC include)
