@@ -1,6 +1,6 @@
 #include <phosphor/phosphor.hpp>
 
 int main() {
-    Phosphor::init();
+    phosphor_init();
     return 0;
 }
