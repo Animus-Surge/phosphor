@@ -5,6 +5,7 @@
  * Vulkan renderer backend for Phosphor.
  */
 
+#include <optional>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>

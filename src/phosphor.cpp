@@ -18,13 +18,25 @@ void phosphor_init() {
     Window* window;
 
     window = new Window();
-    window->init(SDL_WINDOW_SHOWN);
+    window->init(SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN);
 
     VulkanRenderer* renderer = new VulkanRenderer();
     renderer->set_window(window->getSDLWindow());
     renderer->init();
 
     // Main loop
+    bool running = true;
+    while (running) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
+            }
+        }
+
+        renderer->render();
+    }
+    
 
     // Shutdown
     delete window;
