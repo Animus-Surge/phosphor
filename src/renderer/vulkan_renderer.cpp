@@ -3,6 +3,8 @@
  * Vulkan renderer backend implementation.
  */
 
+#ifdef PHOSPHOR_VULKAN
+
 #include "phosphor/backends/vulkan_renderer.hpp"
 #include "phosphor/filesystem.hpp"
 
@@ -444,3 +446,4 @@ void VulkanRenderer::render() {
     currentFrame = (currentFrame + 1) % 2;
 }
 
+#endif //PHOSPHOR_VULKAN

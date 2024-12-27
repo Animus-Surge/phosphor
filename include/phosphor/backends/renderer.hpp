@@ -17,7 +17,6 @@ enum RendererStatus {
     RENDERER_VULKAN_NOT_SUPPORTED = 2
 };
 
-
 /**
  * Base Renderer class for Phosphor.
  */

@@ -37,6 +37,8 @@ find_package(glm CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 
 # Library
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
@@ -57,4 +59,6 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main> $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
     PRIVATE imgui::imgui
     PRIVATE Vulkan::Vulkan
+    PRIVATE OpenGL::GL
+    PRIVATE GLEW::GLEW
 )

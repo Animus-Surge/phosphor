@@ -6,6 +6,8 @@
     "sdl2",
     "spdlog",
     "imgui",
-    "glm"
+    "glm",
+    "opengl",
+    "glew"
   ]
 }

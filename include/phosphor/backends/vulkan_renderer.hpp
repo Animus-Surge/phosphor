@@ -5,6 +5,8 @@
  * Vulkan renderer backend for Phosphor.
  */
 
+#ifdef PHOSPHOR_VULKAN
+
 #include <optional>
 #include <vector>
 
@@ -73,3 +75,4 @@ class VulkanRenderer : public Renderer {
         bool attemptCreateDevice();
 };
 
+#endif //PHOSPHOR_VULKAN

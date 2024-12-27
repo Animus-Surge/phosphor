@@ -5,10 +5,6 @@ This script compiles all the GLSL shaders in the shaders/ directory into a singl
 
 Requires glslang and glslangValidator to be on the system PATH.
 
-TODO: use environment variable to specify the path to glslangValidator instead of assuming
-it's on the system PATH.
-TODO: add support for compiling multiple files at once.
-
 Author: Surge
 Version: 1.0
 Last Updated: 2024-12-26

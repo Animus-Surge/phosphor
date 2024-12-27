@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "name": "Phosphor Engine",
+        "version": "0.1.0",
+        "description": "A simple 2D game engine built on top of the Phosphor Framework."
+    },
+    "window": {
+        "title": "Phosphor Engine {version}",
+        "width": 800,
+        "height": 600
+    }
+}

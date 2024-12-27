@@ -18,6 +18,7 @@ void Window::init(unsigned int flags) {
     if (this->window == nullptr) {
         std::string error = SDL_GetError();
         spdlog::critical("Failed to create window: {}", error);
+        this->window = nullptr;
         return;
     }
 
