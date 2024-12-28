@@ -1,4 +1,5 @@
 /**
+ * @file window.cpp
  * Phosphor src/window.cpp
  * Window class implementation.
  */
@@ -7,7 +8,7 @@
 
 #include <spdlog/spdlog.h>
 
-void Window::init(unsigned int flags) {
+void Window::init(const unsigned int flags) {
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::string error = SDL_GetError();
         spdlog::critical("Failed to initialize SDL: {}", error);

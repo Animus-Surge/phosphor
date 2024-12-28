@@ -13,14 +13,26 @@
 #define PHOSPHOR_VERSION_MINOR 1
 #define PHOSPHOR_VERSION_PATCH 0
 
+#ifdef _WIN32
+#define PHOSPHOR_EXPORT __declspec(dllexport)
+#define PHOSPHOR_IMPORT __declspec(dllimport)
+#elif defined(__GNUC__) || defined(__clang__)
+#define PHOSPHOR_EXPORT __attribute__((visibility("default")))
+#define PHOSPHOR_IMPORT
+#else
+#define PHOSPHOR_EXPORT
+#define PHOSPHOR_IMPORT
+#endif
+
 /**
  * Get the version of the Phosphor library.
  * @return The version of the Phosphor library.
  */
-std::string get_phosphor_version() {
+inline std::string get_phosphor_version() {
     return std::to_string(PHOSPHOR_VERSION_MAJOR) + "." + std::to_string(PHOSPHOR_VERSION_MINOR) + "." + std::to_string(PHOSPHOR_VERSION_PATCH);
 }
 
+class Engine; //TODO: write engine class
 
 /**
  * Initialize the Phosphor library.

@@ -4,6 +4,8 @@
  */
 
 #include "phosphor/phosphor.hpp"
+#include "phosphor/mesh/mesh.hpp"
+#include "phosphor/shader.hpp"
 #include "phosphor/window.hpp"
 #include "phosphor/backends/renderer.hpp"
 #include "phosphor/backends/opengl_renderer.hpp"
@@ -12,7 +14,7 @@
 #include <spdlog/spdlog.h>
 #include <SDL2/SDL.h>
 
-std::unique_ptr<Renderer> createRenderer(int type) {
+std::unique_ptr<Renderer> createRenderer(const int type) {
     switch (type) {
         case 0:
             return std::make_unique<OpenGLRenderer>();
@@ -33,10 +35,9 @@ void phosphor_init() {
 #endif
 
     // Initialization
-    Window* window;
     std::unique_ptr<Renderer> renderer;
 
-    window = new Window();
+    auto *window = new Window();
 
 #ifdef PHOSPHOR_VULKAN
     window->init(SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN);
@@ -62,6 +63,15 @@ void phosphor_init() {
     renderer->init();
 #endif
 
+    const auto mesh = create_primitive_quad(0.5, 0.5);
+
+    auto* scene = new Scene();
+    auto* object = new Object();
+    object->addComponent(mesh);
+    scene->addObject(object);
+
+    renderer->set_scene(scene);
+
     // Main loop
     bool running = true;
     while (running) {
@@ -74,7 +84,6 @@ void phosphor_init() {
 
         renderer->render();
     }
-    
 
     // Shutdown
     delete window;

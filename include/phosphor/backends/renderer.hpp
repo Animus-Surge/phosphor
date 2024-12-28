@@ -7,6 +7,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "phosphor/scene.hpp"
+
 /**
  * Status codes for Renderer operations.
  */
@@ -21,15 +23,24 @@ enum RendererStatus {
  * Base Renderer class for Phosphor.
  */
 class Renderer {
-    protected:
-        SDL_Window* window;
-    public:
-        virtual int init() = 0;
-        virtual void render() = 0;
+protected:
+    SDL_Window* window = nullptr;
+public:
+    Scene* currentScene;
 
-        void set_window(SDL_Window* window) {
-            this->window = window;
-        }
+    virtual int init() = 0;
+    virtual void render() = 0;
+
+    void set_window(SDL_Window* window) {
+        this->window = window;
+    }
+
+    void set_scene(Scene* scene) {
+        this->currentScene = scene;
+    }
+    [[nodiscard]] Scene* get_scene() const {
+        return this->currentScene;
+    }
 
 };
 
