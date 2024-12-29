@@ -15,7 +15,7 @@ Mesh::Mesh(const std::string& filename) {
 }
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
-    static std::shared_ptr<Shader> model_shader = std::make_shared<Shader>("shaders/model.vert", "shaders/model.frag");
+    //static std::shared_ptr<Shader> model_shader = std::make_shared<Shader>("resources/test.vert", "resources/test.frag");
 
     glGenVertexArrays(1, &this->VAO);
     glBindVertexArray(this->VAO);
@@ -108,7 +108,6 @@ Mesh *create_primitive_quad(float width, float height) {
 
 void Mesh::render() {
     glBindVertexArray(this->VAO);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, this->UBO);
     glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }

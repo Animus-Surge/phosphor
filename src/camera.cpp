@@ -37,7 +37,7 @@ Camera::Camera(const int vp_width, const int vp_height) {
 
     glGenBuffers(1, &camera_ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, camera_ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(BindingCameraData), nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(BindingCameraData), &view_projection_matrix, GL_DYNAMIC_DRAW);
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, camera_ubo);
 }

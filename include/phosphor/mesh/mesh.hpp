@@ -57,6 +57,9 @@ public:
     void rotate(float angle, glm::vec3 axis);
     void scale(glm::vec3 scale);
 
+    std::vector<Vertex> get_vertices() const { return vertices; }
+    std::vector<unsigned int> get_indices() const { return indices; }
+
     /**
      * \brief Render the mesh
      */
