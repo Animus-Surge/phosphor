@@ -4,8 +4,8 @@
  */
 
 #include "phosphor/phosphor.hpp"
+#include "phosphor/imgui.hpp"
 #include "phosphor/mesh/mesh.hpp"
-#include "phosphor/shader.hpp"
 #include "phosphor/window.hpp"
 #include "phosphor/backends/renderer.hpp"
 #include "phosphor/backends/opengl_renderer.hpp"
@@ -63,12 +63,12 @@ void phosphor_init() {
     renderer->init();
 #endif
 
-    const auto mesh = create_primitive_quad(0.5, 0.5);
 
     auto* scene = new Scene();
     auto* object = new Object();
-    object->addComponent(mesh);
+    auto* mesh = create_primitive_box(1.0f, 1.0f, 1.0f);
     scene->addObject(object);
+    object->addComponent(mesh);
 
     renderer->set_scene(scene);
 
@@ -77,6 +77,7 @@ void phosphor_init() {
     while (running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
+            imgui_processEvent(&event);
             if (event.type == SDL_QUIT) {
                 running = false;
             }

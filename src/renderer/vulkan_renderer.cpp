@@ -93,8 +93,8 @@ QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice device) {
 void VulkanRenderer::createPipeline() {
     spdlog::info("VULKAN: Creating pipeline...");
 
-    auto vertShaderCode = readBinFile("shaders/test.vert.spv");
-    auto fragShaderCode = readBinFile("shaders/test.frag.spv");
+    auto vertShaderCode = readBinFile("shaders/mesh_common.vert.spv");
+    auto fragShaderCode = readBinFile("shaders/mesh_common.frag.spv");
 
     vk::ShaderModuleCreateInfo vertShaderCreateInfo {
         {}, //flags

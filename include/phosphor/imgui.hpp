@@ -6,12 +6,14 @@
  */
 
 #include <imgui.h>
-#include <imgui_impl_sdl.h>
+#include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 
-void init(SDL_Window* window, void* backend_context) {
+//TODO: create functions for objectifying frames and components (ImGuiFrame class, node subclasses?)
+
+inline void imgui_init(SDL_Window* window, void* backend_context) {
+    IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
 
@@ -19,19 +21,23 @@ void init(SDL_Window* window, void* backend_context) {
     ImGui_ImplOpenGL3_Init("#version 450");
 }
 
-void shutdown() {
+inline void imgui_shutdown() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 }
 
-void newFrame() {
+inline void imgui_newFrame() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 }
 
-void render() {
+inline void imgui_render() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+inline void imgui_processEvent(const SDL_Event* event) {
+    ImGui_ImplSDL2_ProcessEvent(event);
 }

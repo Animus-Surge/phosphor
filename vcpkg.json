@@ -5,10 +5,15 @@
     "vulkan",
     "sdl2",
     "spdlog",
-    "imgui",
+    {
+      "name": "imgui",
+      "features": ["opengl3-binding", "sdl2-binding", "docking-experimental"]
+    },
     "glm",
     "opengl",
     "glew",
-    "assimp"
+    "assimp",
+    "luajit",
+    "stb"
   ]
 }

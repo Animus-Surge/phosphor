@@ -1,6 +1,7 @@
 #Project
 build/
 *.log
+*.ini
 *.env
 .venv/
 

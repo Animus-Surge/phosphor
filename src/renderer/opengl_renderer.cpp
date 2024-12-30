@@ -12,6 +12,7 @@
 #include <spdlog/spdlog.h>
 
 #include "phosphor/backends/opengl_renderer.hpp"
+#include "phosphor/imgui.hpp"
 #include "phosphor/shader.hpp"
 #include "phosphor/camera.hpp"
 #include "phosphor/mesh/mesh.hpp"
@@ -25,6 +26,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 unsigned int vao, vbo, ibo, ubo;
 Camera* camera;
 Shader* shader;
+Mesh* mesh;
 
 std::vector<Vertex> vertices = {
     {{-0.5f, -0.5f, 0.0f}},
@@ -34,11 +36,25 @@ std::vector<Vertex> vertices = {
 };
 std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
 
+void GLAPIENTRY messageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userparam) {
+    if (message == nullptr) {
+        spdlog::error("GL CALLBACK: Received null message");
+        return;
+    }
+
+    if (type == GL_DEBUG_TYPE_ERROR) {
+        spdlog::error("GL ERROR[{}] - {}: {}", severity, id, message);
+    } else {
+        spdlog::info("GL CALLBACK[{}] {} - {}: {}", severity, type, id, message);
+    }
+}
+
 int OpenGLRenderer::init() {
     //Set OpenGL attributes
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
 
     this->context = SDL_GL_CreateContext(this->window);
@@ -48,6 +64,12 @@ int OpenGLRenderer::init() {
         return RENDERER_ERROR;
     }
 
+    if (glDebugMessageCallback != nullptr) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(messageCallback, nullptr);
+    } else {
+        spdlog::warn("glDebugMessageCallback not available.");
+    }
 
     //Initialize GLEW
     glewExperimental = GL_TRUE;
@@ -57,30 +79,13 @@ int OpenGLRenderer::init() {
         return RENDERER_ERROR;
     }
 
+    imgui_init(this->window, this->context);
+
     spdlog::info("OpenGL context created successfully.");
 
     camera = new Camera(800, 600);
-    shader = new Shader("resources/test.vert", "resources/test.frag");
-
-    constexpr auto transform = glm::mat4(1.0f);
-
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
-    glEnableVertexAttribArray(0);
-
-    glGenBuffers(1, &ubo);
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), &transform, GL_DYNAMIC_DRAW);
+    shader = new Shader("resources/mesh_common.vert", "resources/mesh_common.frag");
+    mesh = new Mesh(vertices, indices);
 
     glCullFace(GL_FALSE);
     // glEnable(GL_DEPTH_TEST);
@@ -88,14 +93,19 @@ int OpenGLRenderer::init() {
 }
 
 void OpenGLRenderer::render() {
+    //ImGui
+    imgui_newFrame();
+
+    ImGui::Begin("Test frame");
+    ImGui::Text("Hello, World!");
+    ImGui::End();
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader->use();
-    glBindVertexArray(vao);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
-    glBindVertexArray(0);
+    currentScene->render();
+
+    imgui_render();
 
     SDL_GL_SwapWindow(this->window);
 }

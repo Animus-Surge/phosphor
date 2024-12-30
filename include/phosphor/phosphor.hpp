@@ -28,13 +28,25 @@
  * Get the version of the Phosphor library.
  * @return The version of the Phosphor library.
  */
-inline std::string get_phosphor_version() {
+inline PHOSPHOR_EXPORT std::string get_phosphor_version() {
     return std::to_string(PHOSPHOR_VERSION_MAJOR) + "." + std::to_string(PHOSPHOR_VERSION_MINOR) + "." + std::to_string(PHOSPHOR_VERSION_PATCH);
 }
 
-class Engine; //TODO: write engine class
+class Engine {
+protected:
+    std::string name;
+
+public:
+    explicit Engine(const std::string &name) : name(name) {}
+    ~Engine() {
+        //TODO: cleanup
+    }
+
+    void init();
+    void run();
+};
 
 /**
  * Initialize the Phosphor library.
  */
-void phosphor_init();
+void PHOSPHOR_EXPORT phosphor_init();

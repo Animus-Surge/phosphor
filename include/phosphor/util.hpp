@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <GL/glew.h>
 
 void print_vec2(const glm::vec2& vec) {
     printf("glm::vec2(%f, %f)\n", vec.x, vec.y);
