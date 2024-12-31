@@ -4,6 +4,9 @@
  */
 
 #include "phosphor/phosphor.hpp"
+
+#include <phosphor/camera.hpp>
+
 #include "phosphor/imgui.hpp"
 #include "phosphor/mesh/mesh.hpp"
 #include "phosphor/window.hpp"
@@ -67,6 +70,9 @@ void phosphor_init() {
     auto* scene = new Scene();
     auto* object = new Object();
     auto* mesh = create_primitive_box(1.0f, 1.0f, 1.0f);
+
+    auto* camera = new Camera(window->getWidth(), window->getHeight());
+
     scene->addObject(object);
     object->addComponent(mesh);
 

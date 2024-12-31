@@ -45,6 +45,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
+find_package(Stb REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
@@ -68,7 +69,10 @@ endif()
 #TODO
 
 # Linking
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME}
+    PUBLIC include
+    PRIVATE ${Stb_INCLUDE_DIRECTORIES}
+)
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE spdlog::spdlog
     PRIVATE glm::glm

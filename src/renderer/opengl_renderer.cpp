@@ -83,10 +83,6 @@ int OpenGLRenderer::init() {
 
     spdlog::info("OpenGL context created successfully.");
 
-    camera = new Camera(800, 600);
-    shader = new Shader("resources/mesh_common.vert", "resources/mesh_common.frag");
-    mesh = new Mesh(vertices, indices);
-
     glCullFace(GL_FALSE);
     // glEnable(GL_DEPTH_TEST);
     return RENDERER_SUCCESS;
