@@ -33,3 +33,10 @@ void handle_event(const SDL_Event* event);
 * @param callback The callback to run when the key is pressed
 */
 void PHOSPHOR_EXPORT add_key_callback(SDL_Scancode key, unsigned char state, std::function<void()> callback);
+
+/**
+ * Add a callback for a system event
+ * @param type The type of event to listen for
+ * @param callback The callback to run
+ */
+void PHOSPHOR_EXPORT add_system_callback(unsigned long type, std::function<void()> callback);

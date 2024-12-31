@@ -34,7 +34,7 @@ protected:
 
     void gen_matrices();
     void gen_ubo();
-    void update_ubo();
+    void update_ubo() const;
 
 public:
     Camera(int vp_width, int vp_height);
@@ -54,6 +54,14 @@ public:
     }
     glm::mat4 get_view_projection_matrix() const {
         return view_projection_matrix;
+    }
+
+    glm::vec3 get_direction() const {
+        return direction;
+    }
+
+    glm::vec3 get_right() const {
+        return right;
     }
 
     void update(float deltaT);

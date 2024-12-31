@@ -31,7 +31,7 @@ void Camera::gen_ubo() {
     glBufferData(GL_UNIFORM_BUFFER, sizeof(BindingCameraData), &data, GL_DYNAMIC_DRAW);
 }
 
-void Camera::update_ubo() {
+void Camera::update_ubo() const {
     const BindingCameraData data = {
         view_matrix,
         projection_matrix,
