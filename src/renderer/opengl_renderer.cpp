@@ -16,6 +16,7 @@
 #include "phosphor/shader.hpp"
 #include "phosphor/camera.hpp"
 #include "phosphor/mesh/mesh.hpp"
+#include "phosphor/mesh/axis_widget.hpp"
 
 OpenGLRenderer::~OpenGLRenderer() {
     if (this->window != nullptr) {
@@ -27,6 +28,7 @@ unsigned int vao, vbo, ibo, ubo;
 Camera* camera;
 Shader* shader;
 Mesh* mesh;
+AxisWidget* axis_widget;
 
 std::vector<Vertex> vertices = {
     {{-0.5f, -0.5f, 0.0f}},
@@ -83,8 +85,11 @@ int OpenGLRenderer::init() {
 
     spdlog::info("OpenGL context created successfully.");
 
-    glCullFace(GL_FALSE);
-    // glEnable(GL_DEPTH_TEST);
+    // glCullFace(GL_FALSE);
+    glEnable(GL_DEPTH_TEST);
+
+    axis_widget = new AxisWidget();
+
     return RENDERER_SUCCESS;
 }
 
@@ -92,14 +97,11 @@ void OpenGLRenderer::render() {
     //ImGui
     imgui_newFrame();
 
-    ImGui::Begin("Test frame");
-    ImGui::Text("Hello, World!");
-    ImGui::End();
-
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     currentScene->render();
+    axis_widget->render();
 
     imgui_render();
 

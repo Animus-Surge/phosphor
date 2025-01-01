@@ -14,13 +14,17 @@ class Shader {
 protected:
     unsigned int program;
 public:
-    Shader(std::string vertex, std::string fragment);
+    Shader(const std::string &vertex, const std::string &fragment, bool is_file = true);
     ~Shader() {
         glDeleteProgram(this->program);
     }
 
     void use() const {
         glUseProgram(this->program);
+    }
+
+    void drop() const {
+        glUseProgram(0);
     }
 };
 

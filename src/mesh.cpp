@@ -8,6 +8,7 @@
 #include <phosphor/shader.hpp>
 
 Shader* Mesh::mesh_shader = nullptr;
+Material* Mesh::defaultMaterial = nullptr;
 
 // 2D shape primitives
 
@@ -53,12 +54,12 @@ Mesh *create_primitive_box(const float width, const float height, const float de
     };
 
     const std::vector<unsigned int> indices = {
-        0, 1, 2, 2, 3, 0, //Front
-        4, 5, 6, 6, 7, 4, //Right
-        8, 9, 10, 10, 11, 8, //Top
-        12, 13, 14, 14, 15, 12, //Back
-        16, 17, 18, 18, 19, 16, //Left
-        20, 21, 22, 22, 23, 20 //Bottom
+        2, 3, 0, 0, 1, 2,       //Front
+        6, 7, 4, 4, 5, 6,       //Right
+        10, 11, 8, 8, 9, 10,    //Top
+        14, 15, 12, 12, 13, 14, //Back
+        18, 19, 16, 16, 17, 18, //Left
+        22, 23, 20, 20, 21, 22  //Bottom
     };
 
     return new Mesh(vertices, indices);

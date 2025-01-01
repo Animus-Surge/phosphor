@@ -79,5 +79,5 @@ inline Texture* loadTexture(const std::string& filename) {
         return nullptr;
     }
 
-    return new Texture(data, width, height, channels, filename);
+    return new Texture(data, width, height, channels);
 }

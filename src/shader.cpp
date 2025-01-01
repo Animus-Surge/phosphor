@@ -6,14 +6,20 @@
 #include "phosphor/filesystem.hpp"
 #include "phosphor/shader.hpp"
 
-#include <fstream>
-#include <sstream>
-
 #include <spdlog/spdlog.h>
 
-Shader::Shader(const std::string vertex, const std::string fragment) {
-    std::string vertexSource = readTextFile(vertex);
-    std::string fragmentSource = readTextFile(fragment);
+Shader::Shader(const std::string &vertex, const std::string &fragment, const bool is_file) {
+    std::string vertexSource;
+    std::string fragmentSource;
+
+    if (is_file) {
+        spdlog::info("Loading shader from file: {} {}", vertex, fragment);
+        vertexSource = readTextFile(vertex);
+        fragmentSource = readTextFile(fragment);
+    } else {
+        vertexSource = vertex;
+        fragmentSource = fragment;
+    }
 
     const unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
     const unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource);

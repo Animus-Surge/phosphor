@@ -10,6 +10,7 @@
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "phosphor/object.hpp"
 #include "phosphor/material.hpp"
@@ -35,9 +36,7 @@ class Mesh final : public Component {
             mesh_shader = new Shader("resources/mesh_common.vert", "resources/mesh_common.frag");
         }
     }
-    static void set_default_material(Material* newMaterial) {
-        defaultMaterial = newMaterial;
-    }
+
 
 protected:
     unsigned int VAO = 0, VBO = 0, IBO = 0, UBO = 0;
@@ -47,24 +46,29 @@ protected:
 
     Material* material = nullptr;
 public:
+    void regen_ubo() const {
+        glBindBuffer(GL_UNIFORM_BUFFER, this->UBO);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &this->transform);
+    }
+
     void gen_buffers() {
 
         //Gen vertex array and buffers
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &IBO);
-        glGenBuffers(1, &UBO);
+        glGenVertexArrays(1, &this->VAO);
+        glGenBuffers(1, &this->VBO);
+        glGenBuffers(1, &this->IBO);
+        glGenBuffers(1, &this->UBO);
 
         //Binding and setting the data
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+        glBindVertexArray(this->VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+        glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), this->vertices.data(), GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->IBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), this->indices.data(), GL_STATIC_DRAW);
 
-        glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), &transform, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_UNIFORM_BUFFER, this->UBO);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), &this->transform, GL_DYNAMIC_DRAW);
 
         //Set vertex attributes
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
@@ -86,19 +90,32 @@ public:
     }
 
     ~Mesh() override {
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
-        glDeleteBuffers(1, &IBO);
-        glDeleteBuffers(1, &UBO);
+        glDeleteVertexArrays(1, &this->VAO);
+        glDeleteBuffers(1, &this->VBO);
+        glDeleteBuffers(1, &this->IBO);
+        glDeleteBuffers(1, &this->UBO);
+    }
+
+    void translate(const glm::vec3 delta) {
+        this->transform = glm::translate(this->transform, delta);
+        regen_ubo();
     }
 
     void render() override {
+        if (!material) { //If no material is set, use the default material
+            material = defaultMaterial;
+        }
         mesh_shader->use();
-        //TODO: bind material
-        glBindVertexArray(VAO);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
+        material->bind();
+        glBindVertexArray(this->VAO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, this->UBO);
+        glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, nullptr);
+        mesh_shader->drop();
         glBindVertexArray(0);
+    }
+
+    static void set_default_material(Material* newMaterial) {
+        defaultMaterial = newMaterial;
     }
 };
 

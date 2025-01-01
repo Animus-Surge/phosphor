@@ -8,6 +8,7 @@
 #include <phosphor/camera.hpp>
 
 #include "phosphor/imgui.hpp"
+#include "phosphor/lights/light.hpp"
 #include "phosphor/mesh/mesh.hpp"
 #include "phosphor/window.hpp"
 #include "phosphor/backends/renderer.hpp"
@@ -72,16 +73,35 @@ void phosphor_init() {
     renderer->set_window(window->getSDLWindow());
     renderer->init();
 #endif
+    auto material = new Material();
+    material->set_albedo(glm::vec3(1.0f, 0.0f, 0.0f));
+    Mesh::set_default_material(material);
 
+    auto light = new Light();
+    light->set_position(glm::vec3(0.0f, 0.0f, 0.0f));
+    light->set_color(glm::vec3(1.0f, 1.0f, 1.0f));
+    light->set_intensity(1.0f);
+    light->set_radius(1.0f);
 
     auto* scene = new Scene();
     auto* object = new Object();
     auto* mesh = create_primitive_box(1.0f, 1.0f, 1.0f);
+    mesh->translate(glm::vec3(0.0f, 0.0f, -2.0f));
+    auto* mesh2 = create_primitive_box(1.0f, 1.0f, 1.0f);
+    mesh2->translate(glm::vec3(0.0f, 0.0f, 2.0f));
+    auto* mesh3 = create_primitive_box(1.0f, 1.0f, 1.0f);
+    mesh3->translate(glm::vec3(2.0f, 0.0f, 0.0f));
+    auto* mesh4 = create_primitive_box(1.0f, 1.0f, 1.0f);
+    mesh4->translate(glm::vec3(-2.0f, 0.0f, 0.0f));
 
     auto* camera = new Camera(window->getWidth(), window->getHeight());
 
     scene->addObject(object);
     object->addComponent(mesh);
+    object->addComponent(mesh2);
+    object->addComponent(mesh3);
+    object->addComponent(mesh4);
+    object->addComponent(light);
 
     renderer->set_scene(scene);
 
@@ -109,10 +129,14 @@ void phosphor_init() {
             imgui_processEvent(&event);
             handle_event(&event);
 
+            if (event.type == SDL_KEYUP && event.key.keysym.scancode == SDL_SCANCODE_C) {
+                mouse_captured = !mouse_captured;
+            }
+
             if (event.type == SDL_MOUSEMOTION) {
                 if (mouse_captured) {
-                    int dx = event.motion.xrel;
-                    int dy = event.motion.yrel;
+                    const int dx = event.motion.xrel;
+                    const int dy = event.motion.yrel;
 
                     camera->rotate_x(-dy * 0.01f);
                     camera->rotate_y(-dx * 0.01f);
@@ -120,7 +144,7 @@ void phosphor_init() {
             }
         }
 
-        glm::vec3 cam_Vel = glm::vec3(0.0f, 0.0f, 0.0f);
+        auto cam_Vel = glm::vec3(0.0f, 0.0f, 0.0f);
         if (get_keystate(SDL_SCANCODE_W)) {
             cam_Vel += camera->get_direction();
         }
@@ -133,14 +157,16 @@ void phosphor_init() {
         if (get_keystate(SDL_SCANCODE_D)) {
             cam_Vel += camera->get_right();
         }
+        if (get_keystate(SDL_SCANCODE_SPACE)) {
+            cam_Vel += glm::vec3(0.0f, 1.0f, 0.0f);
+        }
+        if (get_keystate(SDL_SCANCODE_LSHIFT)) {
+            cam_Vel -= glm::vec3(0.0f, 1.0f, 0.0f);
+        }
 
         if (glm::length(cam_Vel) > 0.0f) {
             cam_Vel = glm::normalize(cam_Vel) * deltaT;
             camera->translate(cam_Vel);
-        }
-
-        if (get_keystate(SDL_SCANCODE_C)) {
-            mouse_captured = !mouse_captured;
         }
 
         camera->update(deltaT);

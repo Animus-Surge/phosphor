@@ -5,9 +5,10 @@
 
 #include "phosphor/camera.hpp"
 
-#include <fmt/base.h>
+#include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <spdlog/spdlog.h>
 
 void Camera::gen_matrices() {
     view_matrix = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -47,7 +48,7 @@ void Camera::update_ubo() const {
 }
 
 Camera::Camera(const int vp_width, const int vp_height) {
-    position = glm::vec3(0.0f, 0.0f, 4.0f);
+    position = glm::vec3(0.0f, 0.0f, 0.0f);
     direction = glm::vec3(0.0f, 0.0f, -1.0f);
     right = glm::vec3(1.0f, 0.0f, 0.0f);
 
@@ -73,20 +74,30 @@ void Camera::translate(const glm::vec3 delta) {
 }
 
 void Camera::rotate_x(const float delta) {
-    angle_x += delta;
+    angle_y += delta;
 }
 
 void Camera::rotate_y(const float delta) {
-    angle_y += delta;
+    angle_x += delta;
 }
 
 void Camera::update(float deltaT) {
     if (last_angle_x != angle_x || last_angle_y != angle_y) {
-        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle_x, glm::vec3(1.0f, 0.0f, 0.0f));
-        rotation = glm::rotate(rotation, angle_y, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        direction = glm::vec3(rotation * glm::vec4(0.0f, 0.0f, -1.0f, 1.0f));
-        right = glm::vec3(rotation * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        angle_y = std::clamp(angle_y, (float) -M_PI_2 + 0.05f, (float) M_PI_2 - 0.05f);
+
+        last_angle_x = angle_x;
+        last_angle_y = angle_y;
+
+        // spdlog::info("Camera rotation: x: {}, y: {}", angle_x, angle_y);
+
+        direction = glm::normalize(
+            glm::vec3{
+                std::cos(angle_y) * std::sin(angle_x),
+                std::sin(angle_y),
+                std::cos(angle_y) * std::cos(angle_x)
+            });
+        right = glm::normalize(glm::cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
 
         gen_matrices();
         update_ubo();

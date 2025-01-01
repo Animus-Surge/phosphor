@@ -8,41 +8,55 @@
 #include <string>
 
 #include <GL/glew.h>
+#include <spdlog/spdlog.h>
 
 class Texture {
 protected:
-    unsigned int id;
+    unsigned int id = 0;
     int width, height, channels;
-    std::string path;
 
 public:
-    Texture(unsigned char* data, int width, int height, int channels, const std::string& path):
-        width(width), height(height), channels(channels), path(path) {
+    Texture(const unsigned char* data, const int width, const int height, const int channels):
+        width(width), height(height), channels(channels) {
+        if (!data) {
+            spdlog::error("Texture not created; no data present");
+            return;
+        }
+
+        //Generate texture
         glGenTextures(1, &id);
         glBindTexture(GL_TEXTURE_2D, id);
 
+        //Format selection
         int texture_format = GL_RGB;
         if (channels == 4) {
             texture_format = GL_RGBA;
         }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-        glGenerateMipmap(GL_TEXTURE_2D);
-
+        //Parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        //Bind data
+        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    ~Texture() {
+        glDeleteTextures(1, &id);
+    }
+
+    void bind(const int slot = 0) const {
+        glBindTexture(GL_TEXTURE_2D, id);
+        glActiveTexture(GL_TEXTURE0 + slot);
 
     }
-    ~Texture();
+    void unbind() const {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 
-    void bind() const;
-    void unbind();
-
-    [[nodiscard]] inline int get_width() const { return width; }
-    [[nodiscard]] inline int get_height() const { return height; }
-    [[nodiscard]] inline int get_channels() const { return channels; }
-    [[nodiscard]] inline std::string get_path() const { return path; }
+    [[nodiscard]] int get_width() const { return width; }
+    [[nodiscard]] int get_height() const { return height; }
+    [[nodiscard]] int get_channels() const { return channels; }
 };
