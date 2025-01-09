@@ -22,7 +22,7 @@ layout(std140, binding = 2) uniform MaterialData {
 
     float has_texture;
 
-    float padding;
+    float mat_padding;
 };
 layout(std140, binding = 3) uniform LightData {
     vec3 light_position;
@@ -30,7 +30,7 @@ layout(std140, binding = 3) uniform LightData {
     float light_intensity;
     float light_radius;
 
-    float padding[2];
+    float light_padding[2];
 };
 
 layout(location = 0) in vec3 position;
@@ -42,8 +42,7 @@ out vec4 frag_color;
 vec3 blinnPhong(in vec3 vert_norm, in vec3 light_direction, in vec3 view_direction, in vec3 light_irradiance, in vec3 diffuse, in vec3 specular, in float roughness) {
     vec3 half_vec = normalize(light_direction + view_direction);
     vec3 spec = pow(max(dot(vert_norm, half_vec), 0.0), roughness) * specular;
-    vec3 retc = diffuse * spec;
-    retc *= max(dot(vert_norm, light_direction), 0.0);
+    vec3 retc = diffuse * max(dot(vert_norm, light_direction), 0.0) + spec;
     retc *= light_irradiance;
     return retc;
 }
@@ -64,9 +63,11 @@ void main()
     vec3 view_dir = normalize(cam_position - pos);
     vec3 light_dir = normalize(light_position - pos);
 
+    vec3 ambient = albedo * vec3(0.1);
+
     vec3 light_irradiance = calc_falloff(light_color * light_intensity, light_radius, light_position, pos);
 
-    vec3 color = blinnPhong(norm, light_dir, view_dir, light_irradiance, diffuse, specular, roughness);
-    frag_color = vec4(color, 1.0);
+    vec3 color = blinnPhong(norm, light_dir, view_dir, light_irradiance, albedo, specular, roughness);
+    frag_color = vec4(color + ambient, 1.0);
 
 }

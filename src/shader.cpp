@@ -13,7 +13,7 @@ Shader::Shader(const std::string &vertex, const std::string &fragment, const boo
     std::string fragmentSource;
 
     if (is_file) {
-        spdlog::info("Loading shader from file: {} {}", vertex, fragment);
+        spdlog::info("Loading shader from files: {} {}", vertex, fragment);
         vertexSource = readTextFile(vertex);
         fragmentSource = readTextFile(fragment);
     } else {
@@ -54,7 +54,8 @@ unsigned int compileShader(const unsigned int type, const std::string& source) {
         char infoLog[512];
         glGetShaderInfoLog(shader, 512, nullptr, infoLog);
         std::string error = infoLog;
-        spdlog::error("Shader compilation failed: {}", error);
+        std::string shaderType = (type == GL_VERTEX_SHADER) ? "vertex" : "fragment";
+        spdlog::error("{}: Shader compilation failed: {}", shaderType, error);
     }
 
     return shader;

@@ -75,6 +75,11 @@ public:
         regen_ubo();
     }
 
+    void set_specular(const glm::vec3 newSpecular) {
+        data.specular = newSpecular;
+        regen_ubo();
+    }
+
     void set_metallic(const float newMetallic) {
         data.metallic = newMetallic;
         regen_ubo();

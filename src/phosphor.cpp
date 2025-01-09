@@ -75,13 +75,14 @@ void phosphor_init() {
 #endif
     auto material = new Material();
     material->set_albedo(glm::vec3(1.0f, 0.0f, 0.0f));
+    material->set_specular(glm::vec3(1.0f, 0.3f, 0.3f));
     Mesh::set_default_material(material);
 
     auto light = new Light();
     light->set_position(glm::vec3(0.0f, 0.0f, 0.0f));
     light->set_color(glm::vec3(1.0f, 1.0f, 1.0f));
     light->set_intensity(1.0f);
-    light->set_radius(1.0f);
+    light->set_radius(5.0f);
 
     auto* scene = new Scene();
     auto* object = new Object();
